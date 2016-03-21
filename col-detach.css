@@ -1,0 +1,30 @@
+
+body {
+ font-family:  sans-serif, serif;
+ font-size: 1em;
+ text-align: left;
+ line-height: 1.6em;
+ color: black;
+ background-color: white;
+}
+
+.detached-01,
+.detached-02,
+.detached-03 {
+  border-top: 1px solid black;
+}
+
+.ebquery { 
+ display: block;
+ word-wrap: break-word;
+ margin-bottom: 1.2em;
+}
+.ebkw { 
+ font-weight: bold;
+ background-color: #f0f0f0;
+ padding-left: 0.2em;
+ padding-right: 0.2em;
+}
+.ebsb { vertical-align: sub; }
+.ebsp { vertical-align: super; }
+.ebec { vertical-align: text-bottom; }
