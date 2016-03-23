@@ -1,11 +1,58 @@
 
+@font-face { font-family: _myfont00; src: url('_Lucida_Sans_Unicode.ttf'); }
+@font-face { font-family: _myfont01; src: url('_yugothic.ttf'); }
+@font-face { font-family: _myfont02; src: url('_HanaMinA.ttf'); }
+@font-face { font-family: _myfont03; src: url('_HanaMinB.ttf'); }
+
+@font-face { font-family: _myfont1; src: url('_Georgia_Pro.ttf'); }
+@font-face { font-family: _myfont2; src: url('_Georgia_Pro_Cond.ttf'); }
+@font-face { font-family: _myfont3; src: url('_Georgia_Pro_Cond_Light.ttf'); }
+@font-face { font-family: _myfont4; src: url('_Georgia_Pro_Light.ttf'); }
+
+@font-face { font-family: _myfont7; src: url('_HiraKakuProN-W3.otf'); }
+@font-face { font-family: _myfont8; src: url('_HiraMinProN-W3.otf'); }
+@font-face { font-family: _myfont9; src: url('_ipaexg.ttf'); }
+@font-face { font-family: _myfont10; src: url('_ipaexm.ttf'); }
+
+@font-face { font-family: _myfont12; src: url('_Verdana_Pro.ttf'); }
+@font-face { font-family: _myfont13; src: url('_Verdana_Pro_Cond.ttf'); }
+@font-face { font-family: _myfont14; src: url('_Verdana_Pro_Cond_Light.ttf'); }
+@font-face { font-family: _myfont15; src: url('_Verdana_Pro_Light.ttf'); }
+
+@font-face { font-family: _myfont17; src: url('_yumin.ttf'); }
+
 body {
- font-family:  sans-serif, serif;
- font-size: 1em;
- text-align: left;
- line-height: 1.6em;
- color: black;
- background-color: white;
+  overflow: hidden;
+  height: 100vh;
+  -webkit-column-width: 100vw;
+  font-family: _myfont00, _myfont01, _myfont02, _myfont03, sans-serif, serif;
+  font-size: 1em;
+  text-align: left;
+  text-size-adjust: 100%;
+  line-height: 1.6em;
+  color: black;
+  background-color: white;
+}
+
+.ebquery { 
+  margin: 0.5rem;
+  display: block;
+  word-wrap: break-word;
+  margin-bottom: 1.2rem;
+  font-size: 0.8rem;
+}
+.ebkw { 
+  font-weight: bold;
+  background-color: #f0f0f0;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+.ebsb {  vertical-align: sub;  }
+.ebsp {  vertical-align: super;  }
+.ebec {  vertical-align: text-bottom;  }
+
+.detached-00 {
+  margin-top: 10rem;
 }
 
 .detached-01,
@@ -14,17 +61,59 @@ body {
   border-top: 1px solid black;
 }
 
-.ebquery { 
- display: block;
- word-wrap: break-word;
- margin-bottom: 1.2em;
+.viewer-container {
+  
+  
 }
-.ebkw { 
- font-weight: bold;
- background-color: #f0f0f0;
- padding-left: 0.2em;
- padding-right: 0.2em;
+
+.menu-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: white;
 }
-.ebsb { vertical-align: sub; }
-.ebsp { vertical-align: super; }
-.ebec { vertical-align: text-bottom; }
+
+.menu-container::after {
+  position: absolute;
+  top: 0;
+  z-index: -1;
+  content: '';
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 10px 15px rgba(0,0,0,.3);
+}
+
+.menu {
+  padding: 0 0 0.2rem 0;
+  text-align: center;
+}
+
+.head {
+  float: left;
+  margin-left: 0.5rem;
+  font-family: _myfont4, sans-serif, serif;
+  font-size: 1rem;
+}
+
+.rank {
+  float: right;
+  margin-right: 1rem;
+  padding: 0 0.5rem 0 0.5rem;
+  font-family: _myfont15, sans-serif, serif;
+  font-size: 1rem;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.field-selector {
+  padding: 0 0.5rem 0 0.5rem;
+  font-size: 0.8rem;
+  vertical-align: middle;
+  border-left: 1px solid #eaeaea;
+  border-right: 1px solid #eaeaea;
+}
+
+.touch-area {
+  
+}
+
