@@ -102,9 +102,6 @@ window.onload = function() {
         }
       });
     };
-    Viewer.prototype._getActiveFieldIndex = function() {
-      return this.fields.indexOf(this._getActiveField());
-    };
     Viewer.prototype.goPrevPage = function() {
       this._setViewLeft(window.scrollX-screen.width);
     };
@@ -112,22 +109,32 @@ window.onload = function() {
       this._setViewLeft(window.scrollX+screen.width);
     };
     Viewer.prototype.goPrevField = function() {
-      var index = this._getActiveFieldIndex();
-      if (index == 0) {
-        this._setViewLeft(0, this.fields[index].caption);
-      } else {
-        var field = this.fields[index-1];
-        this._setViewLeft(field.element.offsetLeft, field.caption);
+      var self = this;
+      var left = window.scrollX;
+      if (left == 0) {
+        this._setViewLeft(0, this.fields[0].caption);
+        return;
       }
+      this.fields.slice().reverse().some(function(field) {
+        if (left > field.element.offsetLeft) {
+          self._setViewLeft(field.element.offsetLeft, field.caption);
+          return true;
+        }
+      });
     };
     Viewer.prototype.goNextField = function() {
-      var index = this._getActiveFieldIndex();
-      if (index+1 == this.fields.length) {
-        this._setViewLeft(document.body.scrollWidth, this.fields[index].caption);
-      } else {
-        var field = this.fields[index+1];
-        this._setViewLeft(field.element.offsetLeft, field.caption);
-      }
+      var self = this;
+      var left = window.scrollX;
+      this.fields.some(function(field, index, array) {
+        if (index+1 == array.length) {
+          self._setViewLeft(document.body.scrollWidth, field.caption);
+          return;
+        }
+        if (left < field.element.offsetLeft) {
+          self._setViewLeft(field.element.offsetLeft, field.caption);
+          return true;
+        }
+      });
     };
     Viewer.prototype.playSound = function() {
       
@@ -217,10 +224,10 @@ window.onload = function() {
       this.timerStart = Date.now();
       this.timer = window.setInterval(function() {
         var delta = Date.now() - self.timerStart;
-        if (delta < 1000) {
+        if (delta < 500) {
           // do nothing
         } else if (delta < 2000) {
-          var alpha = 1 - Math.pow((delta - 1000) / 1000, 2);
+          var alpha = 1 - Math.pow(((delta - 500) / 500), 2);
           if (alpha < 0) {
             window.clearInterval(self.timer);
             self.timer = null;
@@ -289,7 +296,7 @@ window.onload = function() {
     Dispacher.prototype.dispatchEnd = function(x, y) {
       this.lastDispatchTime = Date.now();
       // prevent duplicate fire of touchend and mouseup event
-      if (this._preferredDispatcher && 
+      if (this._preferredDispatcher &&
           this.lastDispatchTime - this._preferredDispatcher.lastDispatchTime < 1500) {
         return;
       }
