@@ -30,11 +30,11 @@ body {
   -moz-column-width: 100vw;
   -webkit-column-width: 100vw;
   -o-column-width: 100vw;
-  -ms-cokumn-width: 100vw;
+  -ms-column-width: 100vw;
   -moz-column-gap: 0;
   -webkit-column-gap: 0;
   -o-column-gap: 0;
-  -ms-cokumn-gap: 0;
+  -ms-column-gap: 0;
   font-family: _myfont00, _myfont01, _myfont02, _myfont03, sans-serif, serif;
   font-size: 1em;
   text-align: left;
@@ -69,6 +69,36 @@ body {
 .detached-03 {
   border-top: 1px solid black;
 }
+
+#flash-container {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.5rem;
+  background-color: white;
+  box-shadow: 0 10px 15px rgba(0,0,0,.3);
+  text-align: right;
+}
+#flash-container-left {
+  display: inline-block;
+}
+#flash-container-right {
+  
+}
+#flash-container-numerator {
+  display: inline;
+}
+#flash-container-numerator::after {
+  margin: 0 0.3em 0 0.3em;
+  content: "/";
+}
+#flash-container-denominator {
+  display: inline;
+}
+#flash-container-text {
+  display: inline;
+}
+
 
 .viewer-container {
   

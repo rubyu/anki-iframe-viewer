@@ -1,7 +1,7 @@
 
 var debug = true;
 
-$(function() {
+window.onload = function() {
   "use strint;";
   
   /**
@@ -70,13 +70,40 @@ $(function() {
   */
   
   (function() {
-    var Viewer = function(fields) {
-      this.fields = Array.prototype.slice.call(fields);
+    
+    /*
+    var Menu = function() {
+      var menu_container
     };
-    Viewer.prototype._setViewLeft = function(left) {
+    Menu.prototype.hoge = function() {};
+    */
+    
+    var Viewer = function(flash) {
+      this.flash = flash;
+      this.fields = [];
+    };
+    Viewer.prototype.registerField = function(elem, caption) {
+      this.fields.push({element: elem, caption: caption});
+    };
+    Viewer.prototype.castCurrentState = function() {
+      this.flash.cast(this._getActiveField().caption);
+    };
+    Viewer.prototype._setViewLeft = function(left, caption) {
       console.log("current view left: %d", window.scrollX);
       console.log("set view left: %d", left);
       window.scrollTo(left, 0);
+      this.flash.cast(caption);
+    };
+    Viewer.prototype._getActiveField = function() {
+      var left = window.scrollX;
+      return this.fields.slice().reverse().find(function(field) {
+        if (left >= field.element.offsetLeft) {
+          return true;
+        }
+      });
+    };
+    Viewer.prototype._getActiveFieldIndex = function() {
+      return this.fields.indexOf(this._getActiveField());
     };
     Viewer.prototype.goPrevPage = function() {
       this._setViewLeft(window.scrollX-screen.width);
@@ -85,34 +112,91 @@ $(function() {
       this._setViewLeft(window.scrollX+screen.width);
     };
     Viewer.prototype.goPrevField = function() {
-      var self = this;
-      var value = window.scrollX;
-      this.fields.slice().reverse().some(function(field) {
-        if (value > field.offsetLeft) {
-          self._setViewLeft(field.offsetLeft);
-          return true;
-        }
-      });
+      var index = this._getActiveFieldIndex();
+      if (index == 0) {
+        this._setViewLeft(0, this.fields[index].caption);
+      } else {
+        var field = this.fields[index-1];
+        this._setViewLeft(field.element.offsetLeft, field.caption);
+      }
     };
     Viewer.prototype.goNextField = function() {
-      var self = this;
-      var value = window.scrollX;
-      this.fields.some(function(_, index, array) {
-        if (index+1 == array.length) {
-          self._setViewLeft(document.body.scrollWidth);
-          return;
-        }
-        var field = array[index+1];
-        if (value < field.offsetLeft) {
-          self._setViewLeft(field.offsetLeft);
-          return true;
-        }
-      });
+      var index = this._getActiveFieldIndex();
+      if (index+1 == this.fields.length) {
+        this._setViewLeft(document.body.scrollWidth, this.fields[index].caption);
+      } else {
+        var field = this.fields[index+1];
+        this._setViewLeft(field.element.offsetLeft, field.caption);
+      }
     };
-    
     Viewer.prototype.playSound = function() {
       
     };
+    
+    var Flash = function() {
+      var container = document.createElement("div");
+      container.id = "flash-container";
+      container.style.visibility = "hidden";
+      var left = document.createElement("div");
+      left.id = "flash-container-left";
+      var right = document.createElement("div");
+      right.id = "flash-container-right";
+      var numerator = document.createElement("div");
+      numerator.id = "flash-container-numerator";
+      var denominator = document.createElement("div");
+      denominator.id = "flash-container-denominator";
+      var text = document.createElement("div");
+      text.id = "flash-container-text";
+      this.container = container;
+      this.left = left;
+      this.right = right;
+      this.numerator = numerator;
+      this.denominator = denominator;
+      this.text = text;
+      left.appendChild(text);
+      right.appendChild(numerator);
+      right.appendChild(denominator);
+      container.appendChild(left);
+      container.appendChild(right);
+      document.body.appendChild(container);
+    };
+    Flash.prototype.reflesh = function() {
+      var page = Math.floor(window.scrollX / screen.width) + 1;
+      var pages = Math.floor(document.body.scrollWidth / screen.width);
+      console.log("page: %d/%d", page, pages);
+      this.numerator.innerHTML = page;
+      this.denominator.innerHTML = pages;
+    };
+    Flash.prototype.cast = function(text) {
+      var self = this;
+      text = text || "";
+      console.log("cast: %s", text);
+      if (this.timer) {
+        window.clearInterval(this.timer);
+      }
+      this.reflesh();
+      this.text.innerHTML = text;
+      this.reflesh();
+      this.container.style.opacity = 1.0;
+      this.container.style.visibility = "visible";
+      this.timerStart = Date.now();
+      this.timer = window.setInterval(function() {
+        var delta = Date.now() - self.timerStart;
+        if (delta < 1000) {
+          // do nothing
+        } else if (delta < 2000) {
+          var alpha = 1 - Math.pow((delta - 1000) / 1000, 2);
+          if (alpha < 0) {
+            window.clearInterval(self.timer);
+            self.timer = null;
+            self.container.style.visibility = "hidden";
+          } else {
+            self.container.style.opacity = alpha;
+          }
+        }
+      }, 10);
+    };
+    
     
     var TouchEvent = function(viewer) {
       this.viewer = viewer;
@@ -130,10 +214,10 @@ $(function() {
       this.viewer.goPrevPage();
     };
     TouchEvent.prototype.longUp = function() {
-      alert("longUp");
+      //alert("longUp");
     };
     TouchEvent.prototype.longDown = function() {
-      alert("longDown");
+      //alert("longDown");
     };
     TouchEvent.prototype.longLeft = function() {
       this.viewer.goNextField();
@@ -150,7 +234,7 @@ $(function() {
       this.state = {};
       var _1em = this._getOneEmInPixels();
       this._minShortSwipeSize = _1em * 3;
-      this._minLongSwipeSize = Math.floor(Math.min(screen.height, screen.width) * 0.5);
+      this._minLongSwipeSize = Math.floor(Math.min(screen.height, screen.width) * 0.4);
       
     };
     Dispacher.prototype._getOneEmInPixels = function() {
@@ -208,7 +292,17 @@ $(function() {
       }
     };
     
-    var viewer = new Viewer(document.body.children);
+    var flash = new Flash();
+    var viewer = new Viewer(flash);
+    // detached-00 is `head`
+    // detached-01 is `COCA`
+    // detached-02 is `voice`
+    viewer.registerField(document.getElementById("detached-03"), "ランダムハウス英語辞典");
+    viewer.registerField(document.getElementById("detached-04"), "研究社 新英和中辞典");
+    viewer.registerField(document.getElementById("detached-05"), "研究社 新英和大辞典");
+    viewer.registerField(document.getElementById("detached-06"), "ロングマン現代英英辞典");
+    viewer.registerField(document.getElementById("detached-07"), "斎藤和英大辞典");
+    viewer.castCurrentState();
     var touchEvent = new TouchEvent(viewer);
     var mouseDispacher = new Dispacher(touchEvent);
     var touchDispacher = new Dispacher(touchEvent);
@@ -235,4 +329,4 @@ $(function() {
     
   })();
   
-});
+};
