@@ -22,13 +22,19 @@
 @font-face { font-family: _myfont17; src: url('_yumin.ttf'); }
 
 body {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin: 0;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   overflow: hidden;
   height: calc(100vh - 1rem);
+  -moz-column-width: 100vw;
   -webkit-column-width: 100vw;
+  -o-column-width: 100vw;
+  -ms-cokumn-width: 100vw;
+  -moz-column-gap: 0;
+  -webkit-column-gap: 0;
+  -o-column-gap: 0;
+  -ms-cokumn-gap: 0;
   font-family: _myfont00, _myfont01, _myfont02, _myfont03, sans-serif, serif;
   font-size: 1em;
   text-align: left;
@@ -39,13 +45,12 @@ body {
 }
 
 .ebquery {
-  margin: 0.5rem;
+  padding: 0.5rem 0.5rem 2rem 0.5rem;
   display: block;
   word-wrap: break-word;
-  margin-bottom: 1.2rem;
   font-size: 0.8rem;
 }
-.ebkw { 
+.ebkw {
   font-weight: bold;
   background-color: #f0f0f0;
   padding-left: 0.2rem;

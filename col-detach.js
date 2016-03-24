@@ -70,13 +70,51 @@ $(function() {
   */
   
   (function() {
-    var Viewer = function() {};
+    var Viewer = function() {
+      this.fields = [];
+    };
+    Viewer.prototype.registerField = function(fieldId) {
+      this.fields.push(fieldId);
+    };
+    Viewer.prototype._setViewLeft = function(left) {
+      console.log("scrollTo: %d", left);
+      window.scrollTo(left, 0);
+    };
     Viewer.prototype.goPrevPage = function() {
-      window.scrollTo(window.scrollX-screen.width, 0);
+      this._setViewLeft(window.scrollX-screen.width);
     };
     Viewer.prototype.goNextPage = function() {
-      window.scrollTo(window.scrollX+screen.width, 0);
+      this._setViewLeft(window.scrollX+screen.width);
     };
+    Viewer.prototype.goPrevField = function() {
+      var self = this;
+      var value = window.scrollX;
+      console.log("current view left: %d", value);
+      this.fields.slice().reverse().some(function(fieldId, index, array) {
+        var field = document.getElementById(fieldId);
+        if (value > field.offsetLeft) {
+          self._setViewLeft(field.offsetLeft);
+          return true;
+        }
+      });
+    };
+    Viewer.prototype.goNextField = function() {
+      var self = this;
+      var value = window.scrollX;
+      console.log("current view left: %d", value);
+      this.fields.some(function(fieldId, index, array) {
+        if (index+1 == array.length) {
+          self._setViewLeft(document.body.scrollWidth);
+          return;
+        }
+        var field = document.getElementById(array[index+1]);
+        if (value < field.offsetLeft) {
+          self._setViewLeft(field.offsetLeft);
+          return true;
+        }
+      });
+    };
+    
     Viewer.prototype.playSound = function() {
       
     };
@@ -103,13 +141,13 @@ $(function() {
       alert("longDown");
     };
     TouchEvent.prototype.longLeft = function() {
-      alert("longLeft");
+      this.viewer.goNextField();
     };
     TouchEvent.prototype.longRight = function() {
-      alert("longRight");
+      this.viewer.goPrevField();
     };
     TouchEvent.prototype.tap = function() {
-      alert("tap");
+      //alert("tap");
     };
     
     var Dispacher = function(touchEvent) {
@@ -176,6 +214,10 @@ $(function() {
     };
     
     var viewer = new Viewer();
+    viewer.registerField("detached-00");
+    viewer.registerField("detached-01");
+    viewer.registerField("detached-02");
+    viewer.registerField("detached-03");
     var touchEvent = new TouchEvent(viewer);
     var mouseDispacher = new Dispacher(touchEvent);
     var touchDispacher = new Dispacher(touchEvent);
