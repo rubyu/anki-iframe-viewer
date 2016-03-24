@@ -70,14 +70,12 @@ $(function() {
   */
   
   (function() {
-    var Viewer = function() {
-      this.fields = [];
-    };
-    Viewer.prototype.registerField = function(fieldId) {
-      this.fields.push(fieldId);
+    var Viewer = function(fields) {
+      this.fields = Array.prototype.slice.call(fields);
     };
     Viewer.prototype._setViewLeft = function(left) {
-      console.log("scrollTo: %d", left);
+      console.log("current view left: %d", window.scrollX);
+      console.log("set view left: %d", left);
       window.scrollTo(left, 0);
     };
     Viewer.prototype.goPrevPage = function() {
@@ -89,9 +87,7 @@ $(function() {
     Viewer.prototype.goPrevField = function() {
       var self = this;
       var value = window.scrollX;
-      console.log("current view left: %d", value);
-      this.fields.slice().reverse().some(function(fieldId, index, array) {
-        var field = document.getElementById(fieldId);
+      this.fields.slice().reverse().some(function(field) {
         if (value > field.offsetLeft) {
           self._setViewLeft(field.offsetLeft);
           return true;
@@ -101,13 +97,12 @@ $(function() {
     Viewer.prototype.goNextField = function() {
       var self = this;
       var value = window.scrollX;
-      console.log("current view left: %d", value);
-      this.fields.some(function(fieldId, index, array) {
+      this.fields.some(function(_, index, array) {
         if (index+1 == array.length) {
           self._setViewLeft(document.body.scrollWidth);
           return;
         }
-        var field = document.getElementById(array[index+1]);
+        var field = array[index+1];
         if (value < field.offsetLeft) {
           self._setViewLeft(field.offsetLeft);
           return true;
@@ -213,11 +208,7 @@ $(function() {
       }
     };
     
-    var viewer = new Viewer();
-    viewer.registerField("detached-00");
-    viewer.registerField("detached-01");
-    viewer.registerField("detached-02");
-    viewer.registerField("detached-03");
+    var viewer = new Viewer(document.body.children);
     var touchEvent = new TouchEvent(viewer);
     var mouseDispacher = new Dispacher(touchEvent);
     var touchDispacher = new Dispacher(touchEvent);
