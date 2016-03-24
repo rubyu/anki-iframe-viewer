@@ -116,8 +116,8 @@ $(function() {
       this.touchEvent = touchEvent;
       this.state = {};
       var _1em = this._getOneEmInPixels();
-      this._minShortSwipeSize = _1em * 4;
-      this._minLongSwipeSize = Math.floor(Math.max(screen.height, screen.width) * 0.4);
+      this._minShortSwipeSize = _1em * 3;
+      this._minLongSwipeSize = Math.floor(Math.min(screen.height, screen.width) * 0.5);
       
     };
     Dispacher.prototype._getOneEmInPixels = function() {
