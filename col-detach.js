@@ -135,8 +135,13 @@ window.onload = function() {
         }
       });
     };
-    Viewer.prototype.playSound = function() {
-      
+    Viewer.prototype.goFirstField = function() {
+      var field  = this.fields[0];
+      this._setViewLeft(field.element.offsetLeft, field.caption);
+    };
+    Viewer.prototype.goLastField = function() {
+      var field = this.fields[this.fields.length-1];
+      this._setViewLeft(field.element.offsetLeft, field.caption);
     };
     
     var AudioPlayer = function() {
@@ -225,7 +230,7 @@ window.onload = function() {
         var delta = Date.now() - self.timerStart;
         if (delta < 500) {
           // do nothing
-        } else if (delta < 2000) {
+        } else if (delta < 10000) {
           var alpha = 1 - Math.pow(((delta - 500) / 500), 2);
           if (alpha < 0) {
             window.clearInterval(self.timer);
@@ -256,10 +261,10 @@ window.onload = function() {
       this.viewer.goPrevPage();
     };
     TouchEvent.prototype.longUp = function() {
-      //alert("longUp");
+      this.viewer.goNextField();
     };
     TouchEvent.prototype.longDown = function() {
-      //alert("longDown");
+      this.viewer.goPrevField();
     };
     TouchEvent.prototype.longLeft = function() {
       this.viewer.goNextField();
@@ -275,8 +280,8 @@ window.onload = function() {
       this.touchEvent = touchEvent;
       this.state = {};
       var _1em = this._getOneEmInPixels();
-      this._minShortSwipeSize = _1em * 3;
-      this._minLongSwipeSize = Math.floor(Math.min(screen.height, screen.width) * 0.4);
+      this._minShortSwipeSize = _1em * 2;
+      this._minLongSwipeSize = Math.floor(Math.min(screen.height, screen.width) * 0.7);
       this._preferredDispatcher = preferredDispacher;
       this.lastDispatchTime = Date.now();
     };
@@ -294,7 +299,7 @@ window.onload = function() {
     };
     Dispacher.prototype.dispatchEnd = function(x, y) {
       this.lastDispatchTime = Date.now();
-      // prevent duplicate fire of touchend and mouseup event
+      // prevent duplicate fire of mouseup after touchend
       if (this._preferredDispatcher &&
           this.lastDispatchTime - this._preferredDispatcher.lastDispatchTime < 1500) {
         return;
@@ -347,11 +352,11 @@ window.onload = function() {
     // detached-00 is `head`
     // detached-01 is `COCA`
     // detached-02 is `voice`
-    viewer.registerField(document.getElementById("detached-03"), "ランダムハウス英語辞典");
-    viewer.registerField(document.getElementById("detached-04"), "研究社 新英和中辞典");
-    viewer.registerField(document.getElementById("detached-05"), "研究社 新英和大辞典");
-    viewer.registerField(document.getElementById("detached-06"), "ロングマン現代英英辞典");
-    viewer.registerField(document.getElementById("detached-07"), "斎藤和英大辞典");
+    viewer.registerField(document.getElementById("detached-04"), "ランダムハウス英語辞典");
+    viewer.registerField(document.getElementById("detached-05"), "研究社 新英和中辞典");
+    viewer.registerField(document.getElementById("detached-06"), "研究社 新英和大辞典");
+    viewer.registerField(document.getElementById("detached-07"), "ロングマン現代英英辞典");
+    viewer.registerField(document.getElementById("detached-08"), "斎藤和英大辞典");
     
     var touchEvent = new TouchEvent(viewer, audioPlayer);
     var touchDispacher = new Dispacher(touchEvent);
@@ -365,13 +370,13 @@ window.onload = function() {
       mouseDispacher.dispatchEnd(event.pageX, event.pageY);
     }, false);
     document.addEventListener('touchstart', function(event) {
-      if (event.changedTouches.length == 1) {
+      if (event.changedTouches.length >= 1) {
         var touch = event.changedTouches[0];
         touchDispacher.dispatchStart(touch.pageX, touch.pageY);
       }
     }, false);
     document.addEventListener('touchend', function(event) {
-      if (event.changedTouches.length == 1) {
+      if (event.changedTouches.length >= 1) {
         var touch = event.changedTouches[0];
         touchDispacher.dispatchEnd(touch.pageX, touch.pageY);
       }
