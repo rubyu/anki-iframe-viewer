@@ -352,7 +352,7 @@ window.onload = function() {
     viewer.registerField(document.getElementById("detached-05"), "研究社 新英和大辞典");
     viewer.registerField(document.getElementById("detached-06"), "ロングマン現代英英辞典");
     viewer.registerField(document.getElementById("detached-07"), "斎藤和英大辞典");
-    viewer.castCurrentState();
+    
     var touchEvent = new TouchEvent(viewer, audioPlayer);
     var touchDispacher = new Dispacher(touchEvent);
     var mouseDispacher = new Dispacher(touchEvent, touchDispacher);
@@ -376,6 +376,8 @@ window.onload = function() {
         touchDispacher.dispatchEnd(touch.pageX, touch.pageY);
       }
     }, false);
+    
+    viewer.castCurrentState();
     
   })();
   
