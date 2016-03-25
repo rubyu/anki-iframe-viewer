@@ -126,12 +126,11 @@ window.onload = function() {
       var self = this;
       var left = window.scrollX;
       this.fields.some(function(field, index, array) {
-        if (index+1 == array.length) {
-          self._setViewLeft(document.body.scrollWidth, field.caption);
-          return;
-        }
         if (left < field.element.offsetLeft) {
           self._setViewLeft(field.element.offsetLeft, field.caption);
+          return true;
+        } else if (index+1 == array.length) {
+          self._setViewLeft(document.body.scrollWidth, field.caption);
           return true;
         }
       });
