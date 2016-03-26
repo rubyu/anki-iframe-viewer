@@ -73,21 +73,6 @@ body {
   display: inline;
 }
 
-.ebquery {
-  padding: 0.5rem 0.5rem 2rem 0.5rem;
-  display: block;
-  word-wrap: break-word;
-}
-.ebkw {
-  font-weight: bold;
-  background-color: #f0f0f0;
-  padding-left: 0.2rem;
-  padding-right: 0.2rem;
-}
-.ebsb {  vertical-align: sub;  }
-.ebsp {  vertical-align: super;  }
-.ebec {  vertical-align: text-bottom;  }
-
 #detached-00 {
   margin-left: 1rem;
   display: inline;
@@ -100,8 +85,6 @@ body {
   right: 1rem;
   font-size: 1rem;
 }
-
-/* rank	lemma	PoS	freq	dispersion */
 #detached-02 {
   margin-top: 0.5rem;
 }
@@ -122,17 +105,10 @@ body {
 #detached-02 tbody td {
   border-bottom: 1px solid #eaeaea;
 }
-
 #detached-03 {
   margin: 0.5rem;
   text-align: center;
 }
-
-#detached-04,
-#detached-05,
-#detached-06,
-#detached-07,
-#detached-08 {}
 #detached-04,
 #detached-05,
 #detached-06,
@@ -151,11 +127,26 @@ body {
   content: "【研究社 新英和大辞典】";
 }
 #detached-07::before {
-  content: "【ロングマン現代英英辞典】";
-}
-#detached-08::before {
   content: "【斎藤和英大辞典】";
 }
+#detached-08::before {
+  content: "【ロングマン現代英英辞典】";
+}
+
+.ebquery {
+  padding: 0.5rem 0.5rem 2rem 0.5rem;
+  display: block;
+  word-wrap: break-word;
+}
+.ebkw {
+  font-weight: bold;
+  background-color: #f0f0f0;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+.ebsb {  vertical-align: sub;  }
+.ebsp {  vertical-align: super;  }
+.ebec {  vertical-align: text-bottom;  }
 
 .SRD .pos,
 .KENE7J5 .pos {
@@ -165,7 +156,6 @@ body {
  padding-left: 0.2em;
  padding-right: 0.2em;
 }
-
 .SRD .sense1 {
  background-color: #ffe8e8;
  padding-left: 0.6em;
@@ -196,4 +186,3 @@ body {
 .KQNEWEJ6 .ebul {
   font-weight: bold;
 }
-

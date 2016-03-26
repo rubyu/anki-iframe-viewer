@@ -1,83 +1,7 @@
 
-var debug = true;
-
 window.onload = function() {
   "use strint;";
-  
-  /**
-   */
-  function _scan(elem, max_depth, depth) {
-    var jelem = $(elem);
-    var pos = jelem.position();
-    var left = pos.left;
-    var top = pos.top;
-    var width = jelem.width();
-    var height = jelem.height();
-    
-    if (debug) {
-    console.log("elem=", elem);
-    console.log("left=%d, top=%d, width=%d, height=%d", left, top, width, height);
-    console.log("depth=%d, max_depth=%d", depth, max_depth);
-    }
-    
-    if (depth < max_depth) {
-      jelem
-        .children()
-        .each(function() {
-          _scan(this, max_depth, depth+1);
-      });
-    }
-  }
-  
-  function scan(elem, max_depth) {
-    _scan(elem, max_depth, 0);
-  }
-  
-  /*
-  console.log("parse start");
-  console.time("timer1");
-  
-  //scan(document.body, 3);
-  
-  console.timeEnd("timer1");
-  console.log("parse end");
-  
-  var viewer_container = document.createElement("div");
-  viewer_container.className = "viewer-container";
-  var menu_container = document.createElement("div");
-  menu_container.className = "menu-container";
-  var menu = document.createElement("div");
-  menu.className = "menu";
-  var head = document.createElement("span");
-  head.className = "head";
-  head.textContent = "bite";
-  var rank = document.createElement("span");
-  rank.className = "rank";
-  rank.textContent = "1";
-  var field_selector = document.createElement("span");
-  field_selector.className = "field-selector";
-  field_selector.textContent = "Wikipedia";
-  var touch_area = document.createElement("div");
-  touch_area.className = "touch-area";
-  
-  viewer_container.appendChild(menu_container);
-  menu_container.appendChild(menu);
-  menu.appendChild(head);
-  menu.appendChild(rank);
-  menu.appendChild(field_selector);
-  viewer_container.appendChild(touch_area);
-  document.body.appendChild(viewer_container);
-  */
-  
   (function() {
-    
-    /*
-    var Menu = function() {
-      var menu_container
-    };
-    Menu.prototype.hoge = function() {};
-    */
-    
     var Viewer = function(flash) {
       this.flash = flash;
       this.fields = [];
@@ -350,13 +274,14 @@ window.onload = function() {
     audioPlayer.load();
     var viewer = new Viewer(flash);
     // detached-00 is `head`
-    // detached-01 is `COCA`
-    // detached-02 is `voice`
+    // detached-01 is `rank`
+    // detached-02 is `COCA`
+    // detached-03 is `voice`
     viewer.registerField(document.getElementById("detached-04"), "ランダムハウス英語辞典");
     viewer.registerField(document.getElementById("detached-05"), "研究社 新英和中辞典");
     viewer.registerField(document.getElementById("detached-06"), "研究社 新英和大辞典");
-    viewer.registerField(document.getElementById("detached-07"), "ロングマン現代英英辞典");
-    viewer.registerField(document.getElementById("detached-08"), "斎藤和英大辞典");
+    viewer.registerField(document.getElementById("detached-07"), "斎藤和英大辞典");
+    viewer.registerField(document.getElementById("detached-08"), "ロングマン現代英英辞典");
     
     var touchEvent = new TouchEvent(viewer, audioPlayer);
     var touchDispacher = new Dispacher(touchEvent);
@@ -383,7 +308,5 @@ window.onload = function() {
     }, false);
     
     viewer.castCurrentState();
-    
   })();
-  
 };
