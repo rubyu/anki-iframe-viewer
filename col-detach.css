@@ -21,12 +21,9 @@
 
 @font-face { font-family: _myfont17; src: url('_yumin.ttf'); }
 
-body {
-  margin: 0;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+html {
   overflow: hidden;
-  height: calc(100vh - 1rem);
+  height: 100%;
   -moz-column-width: 100vw;
   -webkit-column-width: 100vw;
   -o-column-width: 100vw;
@@ -35,6 +32,12 @@ body {
   -webkit-column-gap: 0;
   -o-column-gap: 0;
   -ms-column-gap: 0;
+}
+
+body {
+  margin: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   font-family: _myfont00, _myfont01, _myfont02, _myfont03, sans-serif, serif;
   font-size: 0.6rem;
   text-align: left;

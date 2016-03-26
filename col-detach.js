@@ -1,5 +1,5 @@
 
-window.onload = function() {
+window.addEventListener("load", function() {
   "use strint;";
   (function() {
     var Viewer = function(flash) {
@@ -309,4 +309,4 @@ window.onload = function() {
     
     viewer.castCurrentState();
   })();
-};
+}, false);
