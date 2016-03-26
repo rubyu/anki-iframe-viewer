@@ -19,14 +19,34 @@ window.addEventListener("load", function() {
       this.flash.cast(caption);
     };
     Viewer.prototype._getActiveField = function() {
-      var left = window.scrollX;
+      var self = this;
+      var _left = window.scrollX;
+      console.log("current left: %d", _left);
       return this.fields.slice().reverse().find(function(field) {
-        if (left >= field.element.offsetLeft) {
+        var left = self._left(field.element);
+        console.log("left of '%s': %d", field.caption, left);
+        if (_left >= left) {
           return true;
         }
       });
     };
+    Viewer.prototype._left = function(elem) {
+      /* Caution: This may return a wrong value due to the implimentation of browsers.
+      * There is need to use `elem.offsetLeft` here.
+      */
+      //var lect = elem.getBoundingClientRect();
+      //console.log("offsetLeft: %d", elem.offsetLeft);
+      //console.log("lect.left: %d", lect.left);
+      //console.log("lect.right: %d,", lect.right);
+      //console.log("window.pageXOffset: %d", window.pageXOffset);
+      //console.log("window.pageXOffset + lect.left: %d", window.pageXOffset + lect.left);
+      //return lect.left;
+      
+      return elem.offsetLeft;
+    };
     Viewer.prototype.goPrevPage = function() {
+      //todo adjust left alignment
+      //todo show caption when over pages
       this._setViewLeft(window.scrollX-screen.width);
     };
     Viewer.prototype.goNextPage = function() {
@@ -34,24 +54,30 @@ window.addEventListener("load", function() {
     };
     Viewer.prototype.goPrevField = function() {
       var self = this;
-      var left = window.scrollX;
-      if (left == 0) {
+      var _left = window.scrollX;
+      console.log("current left: %d", _left);
+      if (_left == 0) {
         this._setViewLeft(0, this.fields[0].caption);
         return;
       }
       this.fields.slice().reverse().some(function(field) {
-        if (left > field.element.offsetLeft) {
-          self._setViewLeft(field.element.offsetLeft, field.caption);
+        var left = self._left(field.element);
+        console.log("left of '%s': %d", field.caption, left);
+        if (_left > left) {
+          self._setViewLeft(left, field.caption);
           return true;
         }
       });
     };
     Viewer.prototype.goNextField = function() {
       var self = this;
-      var left = window.scrollX;
+      var _left = window.scrollX;
+      console.log("current left: %d", _left);
       this.fields.some(function(field, index, array) {
-        if (left < field.element.offsetLeft) {
-          self._setViewLeft(field.element.offsetLeft, field.caption);
+        var left = self._left(field.element);
+        console.log("left of '%s': %d", field.caption, left);
+        if (_left < left) {
+          self._setViewLeft(left, field.caption);
           return true;
         } else if (index+1 == array.length) {
           self._setViewLeft(document.body.scrollWidth, field.caption);
@@ -61,11 +87,11 @@ window.addEventListener("load", function() {
     };
     Viewer.prototype.goFirstField = function() {
       var field  = this.fields[0];
-      this._setViewLeft(field.element.offsetLeft, field.caption);
+      this._setViewLeft(this._left(field.element), field.caption);
     };
     Viewer.prototype.goLastField = function() {
       var field = this.fields[this.fields.length-1];
-      this._setViewLeft(field.element.offsetLeft, field.caption);
+      this._setViewLeft(this._left(field.element), field.caption);
     };
     
     var AudioPlayer = function() {

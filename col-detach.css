@@ -23,7 +23,12 @@
 
 html {
   overflow: hidden;
-  height: 100%;
+  font-size: 100%;
+}
+
+body {
+  margin: 1rem 0 1rem 0;
+  height: calc(100% - 2rem);
   -moz-column-width: 100vw;
   -webkit-column-width: 100vw;
   -o-column-width: 100vw;
@@ -32,17 +37,11 @@ html {
   -webkit-column-gap: 0;
   -o-column-gap: 0;
   -ms-column-gap: 0;
-}
-
-body {
-  margin: 0;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
   font-family: _myfont00, _myfont01, _myfont02, _myfont03, sans-serif, serif;
-  font-size: 0.6rem;
+  font-size: 1rem;
   text-align: left;
   text-size-adjust: 100%;
-  line-height: 1.1rem;
+  line-height: 1.7rem;
   color: black;
   background-color: white;
 }
@@ -51,10 +50,11 @@ body {
   position: fixed;
   right: 1rem;
   bottom: 4rem;
-  padding: 0.2rem;
+  padding: 0 0.5rem 0 0.5rem;
   background-color: white;
   box-shadow: 0 10px 15px rgba(0,0,0,.3);
   text-align: right;
+  font-size: 0.8rem;
 }
 #flash-container-left {
   display: inline-block;
@@ -79,21 +79,19 @@ body {
 #detached-00 {
   margin-left: 1rem;
   display: inline;
-  font-size: 1rem;
+  font-size: 1.5rem;
   
 }
 #detached-01 {
   position: absolute;
   top: 0.5rem;
   right: 1rem;
-  font-size: 1rem;
+  font-size: 1.5rem;
 }
 #detached-02 {
   margin-top: 0.5rem;
 }
 #detached-02 table {
-  font-size: 0.6rem;
-  
   margin-left: auto;
   margin-right: auto;
 }
@@ -118,26 +116,31 @@ body {
 #detached-07,
 #detached-08 {
   padding-top: 0.5rem;
-  border-top: 1px solid black;
+  border-top: 1px solid #e0e0e0;
 }
 #detached-04::before {
   content: "【ランダムハウス英語辞典】";
+  padding-left: 1rem;
 }
 #detached-05::before {
   content: "【研究社 新英和中辞典】";
+  padding-left: 1rem;
 }
 #detached-06::before {
   content: "【研究社 新英和大辞典】";
+  padding-left: 1rem;
 }
 #detached-07::before {
   content: "【斎藤和英大辞典】";
+  padding-left: 1rem;
 }
 #detached-08::before {
   content: "【ロングマン現代英英辞典】";
+  padding-left: 1rem;
 }
 
 .ebquery {
-  padding: 0.5rem 0.5rem 2rem 0.5rem;
+  padding: 1rem;
   display: block;
   word-wrap: break-word;
 }
@@ -155,35 +158,35 @@ body {
 .KENE7J5 .pos {
  display: inline-block;
  background-color: #e0ffe0;
- margin-top: 1.5em;
- padding-left: 0.2em;
- padding-right: 0.2em;
+ margin-top: 1.5rem;
+ padding-left: 0.2rem;
+ padding-right: 0.2rem;
 }
 .SRD .sense1 {
  background-color: #ffe8e8;
- padding-left: 0.6em;
- padding-right: 0.2em;
+ padding-left: 0.6rem;
+ padding-right: 0.2rem;
 }
 .SRD .sense2 {
  background-color: #e8ffff;
- padding-left: 1.2em;
- padding-right: 0.2em;
+ padding-left: 1.2rem;
+ padding-right: 0.2rem;
 }
 
 .KENE7J5 .sense1 {
  background-color: #e8e8ff;
- padding-left: 1.2em;
- padding-right: 0.2em;
+ padding-left: 1.2rem;
+ padding-right: 0.2rem;
 }
 .KENE7J5 .sense2 {
  background-color: #ffe8e8;
- padding-left: 1.2em;
- padding-right: 0.2em;
+ padding-left: 1.2rem;
+ padding-right: 0.2rem;
 }
 .KENE7J5 .sense3 {
  background-color: #e8ffff;
- padding-left: 1.2em;
- padding-right: 0.2em;
+ padding-left: 1.2rem;
+ padding-right: 0.2rem;
 }
 
 .KQNEWEJ6 .ebul {
