@@ -1,39 +1,71 @@
 "use strint;";
 
-(function() {
+/* Anki does not support `-webkit-margin-width` because it was made by QtWeb, and
+ * the UserArget of it is: Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/534.34 (KHTML, like Gecko) Anki Safari/534.34
+ */
+if (navigator.userAgent.indexOf("Anki") != -1) {
+  var html = document.getElementsByTagName("html")[0];
+  var body = document.getElementsByTagName("body")[0];
+  html.style.overflowY = "auto";
+  body.style.height = "auto";
+  throw "anki-iframe-viewer cannot work on old browsers :(";
+}
+
+/* Lastest JS features, supported by Android WebView, can be used from here. */
+
+/* Global application settings. */
+var App = {};
+App.devicePreferredBaseFontSizes = new Map([
+  ["SO-03G", 10],
+  ["Nexus7", 12]
+]);
+App.baseFontSize = (function(self) {
   var defaultFontSize = 14;
+  console.log("defaultFontSize: %d", defaultFontSize);
+  console.log("devicePixelRatio: %d", window.devicePixelRatio);
   function getAdjustedFontSize() {
-    if (navigator.userAgent.indexOf("SO-03G") != -1) {
-      return 10;
-    } 
-    if (navigator.userAgent.indexOf("Nexus7") != -1) {
-      return 12;
+    var device = Array.from(self.devicePreferredBaseFontSizes.keys()).find(function(key) {
+      return navigator.userAgent.indexOf(key) != -1;
+    });
+    if (device) {
+      var devicePreferredBaseFontSize = self.devicePreferredBaseFontSizes[device];
+      console.log("device [%s] detected, preferred base font size: %d", device, devicePreferredBaseFontSize);
+      return devicePreferredBaseFontSize;
     }
-    console.log("device pixel ratio: %d", window.devicePixelRatio);
-    var n = defaultFontSize - window.devicePixelRatio;
-    if (n % 2 == 0) {
-      return n;
+    console.log("calculate adjusted font size based on devicePixelRatio");
+    var fontSize = defaultFontSize - window.devicePixelRatio;
+    if (fontSize % 2 == 0) {
+      return fontSize;
     } else {
-      return n+1;
+      console.log("round up to be multiple of 2; %d to %d", fontSize, fontSize+1);
+      return fontSize+1;
     }
   }
+  var fontSize = getAdjustedFontSize();
+  console.log("baseFontSize: %s", fontSize);
+  return fontSize;
+})(App);
+App.alreadyTouched = false;
+App.minSwipeSize = App.baseFontSize * 2;
+App.minLongSwipeSize = Math.min(screen.height, screen.width) * 0.65;
+App.minLongTouchMillis = 1000;
+App.maxGestureMillis = 3000;
+
+console.log("App.minSwipeSize: ", App.minSwipeSize);
+console.log("App.minLongSwipeSize: ", App.minLongSwipeSize);
+console.assert(App.minSwipeSize < App.minLongSwipeSize);
+console.log("App.minLongTouchMillis: ", App.minLongTouchMillis);
+console.log("App.maxGestureMillis: ", App.maxGestureMillis);
+console.assert(App.minLongTouchMillis < App.maxGestureMillis);
+
+
+(function() {
   var html = document.getElementsByTagName("html")[0];
-  var size = getAdjustedFontSize() + "px";
-  console.log("adjusted font size: %s", size);
+  var size = App.baseFontSize + "px";
+  console.log("set html.style.fontSize = %s", size);
   html.style.fontSize = size;
 })();
 
-(function() {
-  /* General Anki does not support `-webkit-margin-width` because it was made by QtWeb and
-   * the UserArget of it is: Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/534.34 (KHTML, like Gecko) Anki Safari/534.34
-   */
-  if (navigator.userAgent.indexOf("Anki") != -1) {
-    var html = document.getElementsByTagName("html")[0];
-    var body = document.getElementsByTagName("body")[0];
-    html.style.overflowY = "auto";
-    body.style.height = "auto";
-  }
-})();
 
 var Viewer = function(flash) {
   this.flash = flash;
@@ -132,33 +164,41 @@ var AudioPlayer = function() {
   if (audio.length > 0) {
     this.audio = audio[0];
   }
-  this.remaining = 0;
+  this.stop = true;
+  this.setuped = false;
 };
-AudioPlayer.prototype.load = function() {
-  if (this.audio) {
-    this.audio.loop = false;
-    this.audio.load();
-  }
-};
-AudioPlayer.prototype.playOnce = function() {
+AudioPlayer.prototype.setup = function() {
+  console.log("setup");
+  console.log(this.audio);
   var self = this;
-  this.remaining += 1;
-  console.log("remaining: %d", this.remaining);
-  if (this.audio && !this.setup) {
-    console.log("setup");
-    this.setup = true;
+  if (this.audio && !this.setuped) {
+    console.log("audio.setup");
+    this.setuped = true;
+    this.audio.load();
+    this.audio.play();
     this.audio.addEventListener("ended", function() {
-      self.remaining -= 1;
-      console.log("remaining: %d", self.remaining);
-      if (self.remaining > 0) {
-        self.audio.play();
+      if (!self.stop) {
+        self._play();
       }
     }, false);
   }
-  if (this.audio && this.remaining == 1) {
-    console.log("play");
+};
+AudioPlayer.prototype._play = function() {
+  console.log("audio.play");
+  if (this.audio) {
     this.audio.play();
   }
+};
+AudioPlayer.prototype.playStart = function() {
+  console.log("audio.stop: %s -> false", this.stop);
+  if (this.stop) {
+    this._play();
+  }
+  this.stop = false;
+};
+AudioPlayer.prototype.playEnd = function() {
+  console.log("audio.stop: %s -> true", this.stop);
+  this.stop = true;
 };
 
 var Flash = function() {
@@ -265,76 +305,261 @@ TouchEvent.prototype.longRight = function() {
   this.viewer.goPrevField();
 };
 TouchEvent.prototype.tap = function() {
-  this.audioPlayer.playOnce();
+  this.viewer.goNextPage();
+};
+TouchEvent.prototype.longTapStart = function() {
+  this.audioPlayer.playStart();
+};
+TouchEvent.prototype.longTapEnd = function() {
+  this.audioPlayer.playEnd();
+};
+TouchEvent.prototype.firstTouch = function() {
+  this.audioPlayer.setup();
 };
 
-var Dispacher = function(touchEvent, preferredDispacher) {
-  this.touchEvent = touchEvent;
-  this.state = {};
-  var _1em = this._getOneEmInPixels();
-  this._minShortSwipeSize = _1em * 2;
-  this._minLongSwipeSize = Math.floor(Math.min(screen.height, screen.width) * 0.7);
-  this._preferredDispatcher = preferredDispacher;
+var Gesture = function(appEvent) {
+  this.appEvent = appEvent;
+  this.touches = {};
+};
+Gesture.prototype.type = {
+  tap: 1,
+  longTap: 2,
+  swipeLeft: 3,
+  swipeRight: 4,
+  swipeUp: 5,
+  swipeDown: 6,
+  longSwipeLeft: 7,
+  longSwipeRight: 8,
+  longSwipeUp: 9,
+  longSwipeDown: 10
+};
+Gesture.prototype.tryFirstTouch = function() {
+  if (!App.alreadyTouched) {
+    this.appEvent.firstTouch();
+    App.alreadyTouched = true;
+  }
+};
+Gesture.prototype.pushStart = function(id, x, y) {
+  console.log("gesture.start", id, x, y);
+  var self = this;
+  this.tryFirstTouch();
+  var event = {
+    x: x,
+    y: y,
+    timestamp: Date.now()
+  };
+  var touch = {
+    start: event,
+    moves: [],
+    end: null,
+    type: 0,
+    longTapChecked: false
+  };
+  this.touches[id] = touch;
+  // set a timer for detecting a longTap
+  window.setTimeout(function() {
+    console.log("callback of a timer to check longTap; id: ", id);
+    self._checkLongTap(id);
+    if (self.isLongTap(id)) {
+      console.log("longTap");
+      self.appEvent.longTapStart();
+    } else {
+      console.log("not longTap");
+    }
+  }, App.minLongTouchMillis);
+};
+Gesture.prototype.pushMove = function(id, x, y) {
+  //console.log("gesture.move", id, x, y);
+  this.tryFirstTouch();
+  var touch = this.touches[id];
+  if (!touch) {
+    // this event can be ignored because the gesture not started
+    return;
+  }
+  var event = {
+    x: x,
+    y: y,
+    timestamp: Date.now()
+  };
+  touch.moves.push(event);
+};
+Gesture.prototype.pushEnd = function(id, x, y) {
+  console.log("gesture.end", id, x, y);
+  var touch = this.touches[id];
+  var end = {
+    x: x,
+    y: y,
+  };
+  touch.end = end;
+  if (touch && touch.longTapChecked)
+  this._checkLongTap(id);
+  if (this.isLongTap(id)) {
+    // this event can be ignored because the gesture already ended
+    return;
+  }
+  var type = this._getSwipeType(touch.start, end);
+  console.log("swipeType: ", type);
+  touch.type = type;
+};
+Gesture.prototype._hasNoMoves = function(id) {
+  var minSwipeSize = App.minSwipeSize;
+  var touch = this.touches[id];
+  var x = touch.start.x;
+  var y = touch.start.y;
+  return touch.moves.every(function(event) {
+    return Math.max(Math.abs(event.x - x), Math.abs(event.y - y)) < minSwipeSize;
+  });
+};
+Gesture.prototype._checkLongTap = function(id) {
+  var touch = this.touches[id];
+  if (touch &&
+     !touch.longTapChecked &&
+     !touch.end &&
+      this._hasNoMoves(id)) {
+    touch.type = this.type.longTap;
+  }
+};
+Gesture.prototype._getSwipeType = function(start, end) {
+  var dx = start.x - end.x;
+  var dy = start.y - end.y;
+  var x = Math.abs(dx);
+  var y = Math.abs(dy);
+  if (x > y) {
+    if (x > App.minLongSwipeSize) {
+      if (dx > 0) {
+        return this.type.longSwipeLeft;
+      } else {
+        return this.type.longSwipeRight;
+      }
+    } else if (x > App.minSwipeSize) {
+      if (dx > 0) {
+        return this.type.swipeLeft;
+      } else {
+        return this.type.swipeRight;
+      }
+    } else {
+      return this.type.tap;
+    }
+  } else {
+    if (y > App.minLongSwipeSize) {
+      if (dy > 0) {
+        return this.type.longSwipeUp;
+      } else {
+        return this.type.longSwipeDown;
+      }
+    } else if (y > App.minSwipeSize) {
+      if (dy > 0) {
+        return this.type.swipeUp;
+      } else {
+        return this.type.swipeDown;
+      }
+    } else {
+      return this.type.tap;
+    }
+  }
+};
+Gesture.prototype.delete = function(id) {
+  console.log("delete", id);
+  if (id in this.touches) {
+    delete this.touches[id];
+  }
+};
+Gesture.prototype.has = function(id) {
+  return id in this.touches;
+};
+Gesture.prototype.isTap = function(id) {
+  if (id in this.touches) {
+    return this.touches[id].type === this.type.tap;
+  }
+};
+Gesture.prototype.isLongTap = function(id) {
+  if (id in this.touches) {
+    return this.touches[id].type === this.type.longTap;
+  }
+};
+Gesture.prototype.isSwipeLeft = function(id) {
+  if (id in this.touches) {
+    return this.touches[id].type === this.type.swipeLeft;
+  }
+};
+Gesture.prototype.isSwipeRight = function(id) {
+  if (id in this.touches) {
+    return this.touches[id].type === this.type.swipeRight;
+  }
+};
+Gesture.prototype.isSwipeUp = function(id) {
+  if (id in this.touches) {
+    return this.touches[id].type === this.type.swipeUp;
+  }
+};
+Gesture.prototype.isSwipeDown = function(id) {
+  if (id in this.touches) {
+    return this.touches[id].type === this.type.swipeDown;
+  }
+};
+Gesture.prototype.isLongSwipeLeft = function(id) {
+  if (id in this.touches) {
+    return this.touches[id].type === this.type.longSwipeLeft;
+  }
+};
+Gesture.prototype.isLongSwipeRight = function(id) {
+  if (id in this.touches) {
+    return this.touches[id].type === this.type.longSwipeRight;
+  }
+};
+Gesture.prototype.isLongSwipeUp = function(id) {
+  if (id in this.touches) {
+    return this.touches[id].type === this.type.longSwipeUp;
+  }
+};
+Gesture.prototype.isLongSwipeDown = function(id) {
+  if (id in this.touches) {
+    return this.touches[id].type === this.type.longSwipeDown;
+  }
+};
+
+var Dispacher = function(appEvent, preferredDispacher) {
+  this.appEvent = appEvent;
+  this.gesture = new Gesture(this.appEvent);
   this.lastDispatchTime = Date.now();
 };
-Dispacher.prototype._getOneEmInPixels = function() {
-  var elem = document.createElement('div');
-  elem.style.cssText = 'margin:0; padding:0; width:1px; height:1rem; visibility:hidden;';
-  document.body.appendChild(elem);
-  var _1em = elem.clientHeight;
-  document.body.removeChild(elem);
-  return _1em;
+Dispacher.prototype.dispatchStart = function(id, x, y) {
+  this.gesture.pushStart(id, x, y);
 };
-Dispacher.prototype.dispatchStart = function(x, y) {
-  this.state.x = x;
-  this.state.y = y;
+Dispacher.prototype.dispatchMove = function(id, x, y) {
+  this.gesture.pushMove(id, x, y);
 };
-Dispacher.prototype.dispatchEnd = function(x, y) {
+Dispacher.prototype.dispatchEnd = function(id, x, y) {
   this.lastDispatchTime = Date.now();
-  // prevent duplicate fire of mouseup after touchend
+  // prevent duplicate fire of mouseup event after touchend
   if (this._preferredDispatcher &&
       this.lastDispatchTime - this._preferredDispatcher.lastDispatchTime < 1500) {
     return;
   }
-  var _x = this.state.x;
-  var _y = this.state.y;
-  var dx = _x - x;
-  var dy = _y - y;
-  var ax = Math.abs(dx);
-  var ay = Math.abs(dy);
-  if (ax > ay) {
-    if (ax > this._minLongSwipeSize) {
-      if (dx > 0) {
-        this.touchEvent.longLeft();
-      } else {
-        this.touchEvent.longRight();
-      }
-    } else if (ax > this._minShortSwipeSize) {
-      if (dx > 0) {
-        this.touchEvent.left();
-      } else {
-        this.touchEvent.right();
-      }
-    } else {
-      this.touchEvent.tap();
-    }
-  } else {
-    if (ay > this._minLongSwipeSize) {
-      if (dy > 0) {
-        this.touchEvent.longUp();
-      } else {
-        this.touchEvent.longDown();
-      }
-    } else if (ay > this._minShortSwipeSize) {
-      if (dy > 0) {
-        this.touchEvent.up();
-      } else {
-        this.touchEvent.down();
-      }
-    } else {
-      this.touchEvent.tap();
-    }
+  this.gesture.pushEnd(id, x, y);
+  if (this.gesture.isTap(id)) {
+    this.appEvent.tap();
+  } else if (this.gesture.isLongTap(id)) {
+    // tear up a longTap event, triggered by a timer
+    this.appEvent.longTapEnd();
+  } else if (this.gesture.isSwipeLeft(id)) {
+    this.appEvent.left();
+  } else if (this.gesture.isSwipeRight(id)) {
+    this.appEvent.right();
+  } else if (this.gesture.isSwipeUp(id)) {
+    this.appEvent.up();
+  } else if (this.gesture.isSwipeDown(id)) {
+    this.appEvent.down();
+  } else if (this.gesture.isLongSwipeLeft(id)) {
+    this.appEvent.longLeft();
+  } else if (this.gesture.isLongSwipeRight(id)) {
+    this.appEvent.longRight();
+  } else if (this.gesture.isLongSwipeUp(id)) {
+    this.appEvent.longUp();
+  } else if (this.gesture.isLongSwipeDown(id)) {
+    this.appEvent.longDown();
   }
+  this.gesture.delete(id);
 };
 
 var flash,
@@ -348,7 +573,6 @@ var flash,
 function prepare() {
   flash = new Flash();
   audioPlayer = new AudioPlayer();
-  audioPlayer.load();
   viewer = new Viewer(flash);
   // detached-00 is `head`
   // detached-01 is `rank`
@@ -365,7 +589,7 @@ function prepare() {
   touchDispacher = new Dispacher(touchEvent);
   mouseDispacher = new Dispacher(touchEvent, touchDispacher);
   
-  //https://developer.mozilla.org/en-US/docs/Web/API/MouseWheelEvent
+  // https://developer.mozilla.org/en-US/docs/Web/API/MouseWheelEvent
   document.addEventListener("mousewheel", function(event) {
     var delta = event.wheelDelta;
     if (delta > 0) {
@@ -375,24 +599,49 @@ function prepare() {
     }
   });
   
-  //https://developer.mozilla.org/ja/docs/Web/Guide/DOM/Events/Touch_events
-  document.addEventListener('mousedown', function(event) {
-    mouseDispacher.dispatchStart(event.pageX, event.pageY);
+  // for debug use
+  // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+  document.addEventListener("mousedown", function(event) {
+    mouseDispacher.dispatchStart(0, event.pageX, event.pageY);
+    event.preventDefault();
   }, false);
-  document.addEventListener('mouseup', function(event) {
-    mouseDispacher.dispatchEnd(event.pageX, event.pageY);
+  document.addEventListener("mousemove", function(event) {
+    mouseDispacher.dispatchMove(0, event.pageX, event.pageY);
+    event.preventDefault();
   }, false);
-  document.addEventListener('touchstart', function(event) {
-    if (event.changedTouches.length >= 1) {
-      var touch = event.changedTouches[0];
-      touchDispacher.dispatchStart(touch.pageX, touch.pageY);
+  document.addEventListener("mouseup", function(event) {
+    mouseDispacher.dispatchEnd(0, event.pageX, event.pageY);
+    event.preventDefault();
+  }, false);
+  
+  // https://developer.mozilla.org/en-US/docs/Web/API/Touch
+  // https://developer.mozilla.org/ja/docs/Web/Guide/DOM/Events/Touch_events
+  document.addEventListener("touchstart", function(event) {
+    var touches = event.changedTouches;
+    var size = touches.length;
+    for (var i=0; i < size; ++i) {
+      var touch = touches[i];
+      touchDispacher.dispatchStart(touch.identifier, touch.pageX, touch.pageY);
     }
+    event.preventDefault();
   }, false);
-  document.addEventListener('touchend', function(event) {
-    if (event.changedTouches.length >= 1) {
-      var touch = event.changedTouches[0];
-      touchDispacher.dispatchEnd(touch.pageX, touch.pageY);
+  document.addEventListener("touchmove", function(event) {
+    var touches = event.changedTouches;
+    var size = touches.length;
+    for (var i=0; i < size; ++i) {
+      var touch = touches[i];
+      touchDispacher.dispatchMove(touch.identifier, touch.pageX, touch.pageY);
     }
+    event.preventDefault();
+  }, false);
+  document.addEventListener("touchend", function(event) {
+    var touches = event.changedTouches;
+    var size = touches.length;
+    for (var i=0; i < size; ++i) {
+      var touch = touches[i];
+      touchDispacher.dispatchEnd(touch.identifier, touch.pageX, touch.pageY);
+    }
+    event.preventDefault();
   }, false);
 }
 
