@@ -10,9 +10,10 @@ if (navigator.userAgent.indexOf("Anki") != -1) {
   throw "anki-iframe-viewer cannot work on old browsers :(";
 }
 
-/* Lastest JS features, supported by Android WebView, can be used from here. */
 (function() {
   "use strict";
+  /* Lastest JS features, supported by Android WebView, can be used from here. */
+  
   /* Global application settings. */
   const App = {};
   App.devicePreferredBaseFontSizes = new Map([
@@ -24,16 +25,16 @@ if (navigator.userAgent.indexOf("Anki") != -1) {
     console.log("defaultFontSize: %d", defaultFontSize);
     console.log("devicePixelRatio: %d", window.devicePixelRatio);
     function getAdjustedFontSize() {
-      var device = Array.from(self.devicePreferredBaseFontSizes.keys()).find(function(key) {
+      const device = Array.from(self.devicePreferredBaseFontSizes.keys()).find(function(key) {
         return navigator.userAgent.indexOf(key) != -1;
       });
       if (device) {
-        var devicePreferredBaseFontSize = self.devicePreferredBaseFontSizes.get(device);
+        const devicePreferredBaseFontSize = self.devicePreferredBaseFontSizes.get(device);
         console.log("device [%s] detected, preferred base font size: %d", device, devicePreferredBaseFontSize);
         return devicePreferredBaseFontSize;
       }
       console.log("calculate adjusted font size based on devicePixelRatio");
-      var fontSize = defaultFontSize - window.devicePixelRatio;
+      const fontSize = defaultFontSize - window.devicePixelRatio;
       if (fontSize % 2 == 0) {
         return fontSize;
       } else {
@@ -41,7 +42,7 @@ if (navigator.userAgent.indexOf("Anki") != -1) {
         return fontSize+1;
       }
     }
-    var fontSize = getAdjustedFontSize();
+    const fontSize = getAdjustedFontSize();
     console.log("baseFontSize: %s", fontSize);
     return fontSize;
   })(App);
@@ -58,16 +59,19 @@ if (navigator.userAgent.indexOf("Anki") != -1) {
   console.assert(App.alreadyTouched === false);
   console.assert(App.minSwipeSize < App.minLongSwipeSize);
   console.assert(App.minLongTouchMillis < App.maxGestureMillis);
-
-
+  
+  /* Adjust applictaion font size based on App.baseFontSize */
   (function() {
     var html = document.getElementsByTagName("html")[0];
     var size = App.baseFontSize + "px";
     console.log("set html.style.fontSize = %s", size);
     html.style.fontSize = size;
   })();
-
-
+  
+  
+  /* Definitions of the application components. */
+  
+  
   var Viewer = function(flash) {
     this.flash = flash;
     this.fields = [];
@@ -97,17 +101,6 @@ if (navigator.userAgent.indexOf("Anki") != -1) {
     });
   };
   Viewer.prototype._left = function(elem) {
-    /* Caution: This may return a wrong value due to the implimentation of browsers.
-    * There is need to use `elem.offsetLeft` here.
-    */
-    //var lect = elem.getBoundingClientRect();
-    //console.log("offsetLeft: %d", elem.offsetLeft);
-    //console.log("lect.left: %d", lect.left);
-    //console.log("lect.right: %d,", lect.right);
-    //console.log("window.pageXOffset: %d", window.pageXOffset);
-    //console.log("window.pageXOffset + lect.left: %d", window.pageXOffset + lect.left);
-    //return lect.left;
-
     return elem.offsetLeft;
   };
   Viewer.prototype.goPrevPage = function() {
@@ -561,14 +554,20 @@ if (navigator.userAgent.indexOf("Anki") != -1) {
     }
     this.gesture.delete(id);
   };
-
+  
+  
+  
+  
+  
+  
+  
   var flash,
       audioPlayer,
       viewer,
       mouseEvent,
       touchEvent,
       touchDispacher,
-      mouseDispatcher = null;
+      mouseDispacher = null;
 
   function prepare() {
     flash = new Flash();
