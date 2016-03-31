@@ -13,8 +13,8 @@ object JSBuild extends Build {
       val dist = file("./dist/")
       val resources = file("./src/main/resources/")
       val files = Seq(
-        ("./target/scala-2.11/anki-iframe-viewer-fastopt.js", s"$dist/anki-iframe-viewer.js"),
-        ("./target/scala-2.11/anki-iframe-viewer-fullopt.js", s"$dist/anki-iframe-viewer-opt.js")
+        ("./target/scala-2.11/anki-iframe-viewer-opt.js",     s"$dist/anki-iframe-viewer.js"),
+        ("./target/scala-2.11/anki-iframe-viewer-opt.js.map", s"$dist/anki-iframe-viewer-opt.js.map")
       ) map {case (a, b) =>
         (file(a), file(b))
       }

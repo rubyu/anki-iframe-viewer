@@ -14,7 +14,6 @@ libraryDependencies ++= Seq(
 )
 
 compile <<= (compile in Compile).
-  dependsOn(fastOptJS in Compile).
   dependsOn(fullOptJS in Compile)
 
 dist <<= dist.dependsOn(compile)
