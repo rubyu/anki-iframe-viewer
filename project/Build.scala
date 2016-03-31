@@ -10,20 +10,21 @@ object JSBuild extends Build {
   lazy val rootSettings = Seq(
     dist := {
       import IO._
-      val dir = file("./dist/")
+      val dist = file("./dist/")
+      val resources = file("./src/main/resources/")
       val files = Seq(
-        ("./target/scala-2.11/anki-iframe-viewer-fastopt.js", s"$dir/anki-iframe-viewer.js"),
-        ("./src/main/resources/anki-iframe-viewer.css",       s"$dir/anki-iframe-viewer.css"),
-        ("./src/main/resources/viewer.html",                  s"$dir/viewer.html")
+        ("./target/scala-2.11/anki-iframe-viewer-fastopt.js", s"$dist/anki-iframe-viewer.js"),
+        ("./target/scala-2.11/anki-iframe-viewer-fullopt.js", s"$dist/anki-iframe-viewer-opt.js")
       ) map {case (a, b) =>
         (file(a), file(b))
       }
-      if (dir.exists && dir.isFile) {
-        throw new IllegalStateException(s"'$dir' is not a directory")
+      if (dist.exists && dist.isFile) {
+        throw new IllegalStateException(s"'$dist' is not a directory")
       }
-      dir.delete()
-      dir.mkdir()
-      copy(files, overwrite = false, preserveLastModified = true)
+      dist.delete()
+      dist.mkdir()
+      copyDirectory(resources, dist, overwrite = true, preserveLastModified = true)
+      copy(files, overwrite = true, preserveLastModified = true)
     }
   )
   lazy val dist = TaskKey[Unit]("dist")
