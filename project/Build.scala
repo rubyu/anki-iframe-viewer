@@ -21,7 +21,7 @@ object Build extends sbt.Build {
       target := file("./target/dev/")
     )).
     settings(Seq(
-      dist := distTask.dependsOn(fullOptJS in Compile).value
+      dist := distTask.dependsOn(fastOptJS in Compile).value
     )).
     settings(
       libraryDependencies ++= Seq(
@@ -40,7 +40,9 @@ object Build extends sbt.Build {
       dist := distTask.dependsOn(fullOptJS in Compile).value
     )).
     settings(Seq(
-      scalacOptions := Seq("-Xdisable-assertions")
+      scalacOptions := Seq(
+        "-Xdisable-assertions"
+      )
     )).
     settings(
       libraryDependencies ++= Seq(

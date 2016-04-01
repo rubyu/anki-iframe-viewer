@@ -2,12 +2,11 @@
 
 import scala.scalajs.js.JSApp
 import scala.scalajs.js.Dynamic.global
-import scala.scalajs.js.annotation.JSExport
 import org.scalajs.dom.{window, document}
 import org.scalajs.dom.html._
 
-@JSExport
-object AnkiIframeViewer extends JSApp {
+object AnkiIframeViewer extends JSApp with LoggerKey {
+
   def isAnki = window.navigator.userAgent.contains("Anki")
 
   def toStandardMode(): Unit = {
@@ -17,8 +16,20 @@ object AnkiIframeViewer extends JSApp {
     body.style.overflowY = "auto"
   }
 
-  @JSExport
+  def logTest(): Unit = {
+    Logger.info("ok")
+    Logger.info("ok", "ok")
+    Logger.trace("trace")
+    Logger.debug("debug")
+    Logger.info("info")
+    Logger.warn("warn")
+    Logger.error("error")
+    Logger.fatal("fatal")
+  }
+
+
   def main(): Unit = {
+
     if (isAnki) {
       this.toStandardMode()
       global.console.log("anki-iframe-viewer cannot work on old browsers :(")
@@ -29,7 +40,11 @@ object AnkiIframeViewer extends JSApp {
     assert(false)
 
     global.console.log("ok")
+    global.console.log("a", "b")
     println("ok")
-
+    Logger.info("logtest before")
+    logTest()
+    Logger.info("logtest after")
+    Logger.info("a", "b")
   }
 }
