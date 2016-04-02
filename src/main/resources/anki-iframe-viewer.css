@@ -120,15 +120,13 @@ body {
 }
 
 .ebquery {
-  padding: 1rem;
+  padding: 0 1rem 0 1rem;
   display: block;
   word-wrap: break-word;
 }
 .ebkw {
   font-weight: bold;
   background-color: #f0f0f0;
-  padding-left: 0.2rem;
-  padding-right: 0.2rem;
 }
 .ebsb {  vertical-align: sub;  }
 .ebsp {  vertical-align: super;  }
@@ -137,41 +135,51 @@ body {
   max-height: 100%;
 }
 
-.SRD .pos,
-.KENE7J5 .pos {
- display: inline-block;
- background-color: #e0ffe0;
- margin-top: 1.5rem;
- padding-left: 0.2rem;
- padding-right: 0.2rem;
+.ebkw,
+.pos,
+.sense1,
+.sense2,
+.sense3,
+.LDOCE5 .sup {
+  display: inline-block;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
 }
-.SRD .sense1 {
- background-color: #ffe8e8;
+.SRD      .sense1 {
  padding-left: 0.6rem;
- padding-right: 0.2rem;
 }
-.SRD .sense2 {
- background-color: #e8ffff;
+.SRD      .sense2,
+.BODY     .sense1,
+.KENE7J5  .sense1,
+.KENE7J5  .sense2,
+.KENE7J5  .sense3,
+.LDOCE5   .sense1,
+.LDOCE5   .sense2 {
  padding-left: 1.2rem;
- padding-right: 0.2rem;
 }
-
-.KENE7J5 .sense1 {
- background-color: #e8e8ff;
- padding-left: 1.2rem;
- padding-right: 0.2rem;
+.SRD      .pos,
+.KENE7J5  .pos,
+.BODY     .pos {
+ background-color: #e0ffe0;
 }
-.KENE7J5 .sense2 {
+.LDOCE5   .sup {
+ background-color: #ffead5;
+}
+.SRD      .sense1,
+.KENE7J5  .sense2,
+.BODY     .sense1,
+.LDOCE5   .sense1 {
  background-color: #ffe8e8;
- padding-left: 1.2rem;
- padding-right: 0.2rem;
 }
-.KENE7J5 .sense3 {
+.SRD      .sense2,
+.KENE7J5  .sense3,
+.LDOCE5   .sense2 {
  background-color: #e8ffff;
- padding-left: 1.2rem;
- padding-right: 0.2rem;
 }
 
+.KENE7J5  .sense1 {
+ background-color: #e8e8ff;
+}
 .KQNEWEJ6 .ebul {
   font-weight: bold;
 }
