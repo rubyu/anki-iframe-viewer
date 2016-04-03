@@ -67,6 +67,10 @@ object App extends Logger {
     this
   }
 
+  // audio
+  // chapter
+  // head
+
   @JSExport
   def run(): Unit = {
     info("start")
@@ -76,7 +80,7 @@ object App extends Logger {
     window.addEventListener("load", loadHandler)
   }
   val DOMContentLoadedHander: js.Function1[dom.Event, Any] = (e: dom.Event) => {
-    if (U.isAnki) {
+    if (!Viewer.canRun) {
       fallback()
       fatal("ankiIframeViewerApp cannot work on old browsers :(")
     } else {
@@ -85,7 +89,7 @@ object App extends Logger {
   }
 
   val loadHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
-    if (!U.isAnki) {
+    if (Viewer.canRun) {
       //
     }
   }
