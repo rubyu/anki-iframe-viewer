@@ -1,33 +1,42 @@
 
 import scala.annotation.elidable
-import scala.scalajs.js.Dynamic.global
+import scala.scalajs.js.Dynamic._
 
-trait LoggerKey {
-  implicit val loggerKey = this
-}
+trait Logger {
+  private def log(s: String): Unit =
+    global.console.log(s)
 
-object Logger {
+  private def seqToLogString(x: Seq[_]) =
+    x.map(_.toString).mkString(" ")
+
+  private val traceText = s"[trace][${ this.getClass.getSimpleName }]"
+  private val debugText = s"[debug][${ this.getClass.getSimpleName }]"
+  private val infoText  = s"[info][${ this.getClass.getSimpleName }]"
+  private val warnText  = s"[warn][${ this.getClass.getSimpleName }]"
+  private val errorText = s"[error][${ this.getClass.getSimpleName }]"
+  private val fatalText = s"[fatal][${ this.getClass.getSimpleName }]"
+
   @elidable(elidable.FINEST)
-  def trace(x: Any)(implicit key: LoggerKey): Unit =
-    global.console.log(s"[${key.getClass.getName}][trace] ", x.toString)
+  def trace(x: Any*): Unit =
+    log(s"${ traceText } ${ seqToLogString(x) }")
 
   @elidable(elidable.FINE)
-  def debug(x: Any)(implicit key: LoggerKey): Unit =
-    global.console.log(s"[${key.getClass.getName}][debug] ", x.toString)
+  def debug(x: Any*): Unit =
+    log(s"${ debugText } ${ seqToLogString(x) }")
 
   @elidable(elidable.INFO)
-  def info(x: Any)(implicit key: LoggerKey): Unit =
-    global.console.log(s"[${key.getClass.getName}][info] ", x.toString)
+  def info(x: Any*): Unit =
+    log(s"${ infoText } ${ seqToLogString(x) }")
 
   @elidable(elidable.WARNING)
-  def warn(x: Any)(implicit key: LoggerKey): Unit =
-    global.console.log(s"[${key.getClass.getName}][warn] ", x.toString)
+  def warn(x: Any*): Unit =
+    log(s"${ warnText } ${ seqToLogString(x) }")
 
   @elidable(elidable.SEVERE)
-  def error(x: Any)(implicit key: LoggerKey): Unit =
-    global.console.log(s"[${key.getClass.getName}][error] ", x.toString)
+  def error(x: Any*): Unit =
+    log(s"${ errorText } ${ seqToLogString(x) }")
 
   @elidable(elidable.OFF)
-  def fatal(x: Any)(implicit key: LoggerKey): Unit =
-    global.console.log(s"[${key.getClass.getName}][fatal] ", x.toString)
+  def fatal(x: Any*): Unit =
+    log(s"${ fatalText } ${ seqToLogString(x) }")
 }
