@@ -1,4 +1,3 @@
-
 import scala.annotation.elidable
 import scala.scalajs.js.Dynamic._
 

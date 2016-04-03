@@ -1,5 +1,11 @@
 import org.scalajs.dom._
 
 object U {
-  def isAnki = window.navigator.userAgent.contains("Anki")
+  def isAnki = N.userAgent.contains("Anki")
+  object W {
+    def devicePixelRatio = window.devicePixelRatio
+  }
+  object N {
+    def userAgent = window.navigator.userAgent
+  }
 }
