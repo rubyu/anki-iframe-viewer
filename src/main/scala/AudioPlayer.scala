@@ -6,14 +6,18 @@ import org.scalajs.dom.html
 
 class AudioPlayer(audio: html.Audio) extends Logger {
   var listener = 0
-  def canPlay = audio.readyState.toString.toInt > 0
+  var setupped = false
   def setup(): Unit = {
-    debug(f"setup| listener: $listener")
-    debug(f"canPlay: $canPlay")
-    if (!canPlay) {
+    if (!setupped) {
+      debug(f"setup| listener: $listener")
       debug(f"trying to load audio")
       audio.load()
-      audio.addEventListener("ended", audioEndedHandler)
+      audio.play()
+      audio.addEventListener("ended", (e: dom.Event) => {
+        debug(f"ended| listener: $listener")
+        if (listener > 0) _play()
+      })
+      setupped = true
     }
   }
   def _play(): Unit = {
@@ -30,10 +34,5 @@ class AudioPlayer(audio: html.Audio) extends Logger {
     debug(f"cancel| listener: $listener")
     listener -= 1
     debug(f"listener: $listener")
-  }
-
-  var audioEndedHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
-    debug(f"ended| listener: $listener")
-    if (listener > 0) _play()
   }
 }
