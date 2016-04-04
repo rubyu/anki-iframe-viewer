@@ -1,6 +1,6 @@
-
 import scala.collection.mutable
-import org.scalajs.dom.{window, document, html}
+import scala.scalajs.js
+import org.scalajs.dom.{document, html, window}
 import org.scalajs.dom.raw.HTMLUnknownElement
 
 object Viewer {
@@ -12,53 +12,74 @@ object Viewer {
   }
 }
 
-class Viewer(flash: Flash) extends Logger {
-  val chapters = mutable.ArrayBuffer.empty[Chapter]
-  def registerChapterById(id: String, caption: String): Unit = {
-    chapters += Chapter(document.getElementById(id).asInstanceOf[HTMLUnknownElement], caption)
-  }
-  def castCurrentState(): Unit = {
-    activeChapter match {
-      case Some(c) => flash.cast(Some(c.caption))
-      case None =>
+class Viewer(flash: Flash, chapters: List[Chapter]) extends Logger {
+  def viewSize: Double = window.screen.width
+  def position: Double = window.pageXOffset
+  def ordinaryPosition(m: Double): Double = {
+    val n = viewSize
+    m % n match {
+      case q if q > 0 => math.floor((m / n) + 0.5) * n
+      case q => q * n
     }
   }
-  def setViewLeft(left: Double, caption: String) = setViewLeft(left, Some(caption))
-  def setViewLeft(left: Double) = setViewLeft(left, None)
-  def setViewLeft(left: Double, caption: Option[String]): Unit = {
-    window.scrollTo(left.toInt, 0)
-    flash.cast(Some(caption))
+  def setPosition(pos: Double, caption: String) = setPosition(pos, Some(caption))
+  def setPosition(pos: Double) = setPosition(pos, None)
+  def setPosition(pos: Double, caption: Option[String]): Unit = {
+    window.scrollTo(pos.toInt, 0)
+    flash.cast(caption)
   }
-  def run(): Unit ={
-    info("start")
-  }
-  def activeChapter = {
-    chapters.reverse.find { chapter =>
-      if (window.pageXOffset >= chapter.element.offsetLeft) true
+  def findActiveChapter(list: Iterable[Chapter]): LogicalChapter = {
+    val pos = ordinaryPosition(position)
+    list.find { c =>
+      if (pos >= c.offsetLeft && pos <= c.offsetLeft + c.offsetWidth) true
       else false
+    } getOrElse {
+      if (pos < chapters.head.offsetLeft) StartOfCard
+      else EndOfCard
     }
   }
-  def go(chapter: Chapter): Unit = setViewLeft(chapter.element.offsetLeft, chapter.caption)
-  def goPrevPage(): Unit = setViewLeft(window.pageXOffset - window.screen.width)
-  def goNextPage(): Unit = setViewLeft(window.pageXOffset + window.screen.width)
+  def atFirstPageOf(c: Chapter) = position == c.offsetLeft
+  def atLastPageOf(c: Chapter) = position > c.offsetLeft + c.offsetWidth - viewSize
+  def go(chapter: LogicalChapter): Unit = {
+    chapter match {
+      case EndOfCard =>
+      case c =>
+        val p = c.offsetLeft
+        val op = ordinaryPosition(p)
+        if (p != op) {
+          error(f"given position is not ordinary: $p; nearest ordinary position: $op")
+        }
+        setPosition(op, c.caption)
+    }
+  }
+  def goPrevPage(): Unit = setPosition(ordinaryPosition(position) - viewSize)
+  def goNextPage(): Unit = setPosition(ordinaryPosition(position) + viewSize)
   def goPrevChapter(): Unit = {
-    chapters.reverse.find { chapter =>
-      if (window.pageXOffset > chapter.element.offsetLeft) true
-      else false
-    } match {
-      case Some(chapter) => go(chapter)
-      case None => setViewLeft(chapters.head.element.offsetLeft, "カードの先頭")
+    findActiveChapter(chapters) match {
+      case c: Chapter =>
+        if (atFirstPageOf(c)) {
+          if (c == chapters.head) go(StartOfCard)
+          else go(chapters(chapters.indexOf(c)-1))
+        }
+      case c => go(c)
     }
   }
   def goNextChapter(): Unit = {
-    chapters find { chapter =>
-      if (window.pageXOffset < chapter.element.offsetLeft) true
-      else false
-    } match {
-      case Some(chapter) => go(chapter)
-      case None => setViewLeft(document.body.scrollWidth, "カードの終わり")
+    findActiveChapter(chapters.reverse) match {
+      case c: Chapter =>
+        if (atLastPageOf(c)) {
+          if (c == chapters.last) go(EndOfCard)
+          else go(chapters(chapters.indexOf(c)+1))
+        }
+      case c => go(c)
     }
   }
   def goFirstChapter(): Unit = go(chapters.head)
   def goLastChapter(): Unit = go(chapters.last)
+  def castCurrentState(): Unit = {
+    flash.cast(findActiveChapter(chapters).caption)
+  }
+  def run(): Unit = {
+    info("start")
+  }
 }

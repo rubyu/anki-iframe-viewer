@@ -3,8 +3,9 @@ import scala.collection.mutable
 import scalajs.js
 import scalajs.js.annotation.JSExport
 import org.scalajs.dom
-import org.scalajs.dom.{window, document, html}
-import org.scalajs.dom.html.{Html, Body}
+import org.scalajs.dom.{document, window}
+import org.scalajs.dom.html
+import org.scalajs.dom.raw.HTMLUnknownElement
 
 @JSExport("AnkiIframeViewerApp")
 object App extends Logger {
@@ -12,18 +13,17 @@ object App extends Logger {
   val defaultFontSize: Double = 16
   def baseFontSize: Int = {
     debug(f"defaultFontSize: $defaultFontSize%.2f")
-    debug(f"devicePixelRatio: ${U.W.devicePixelRatio}%.2f")
+    debug(f"devicePixelRatio: ${window.devicePixelRatio}%.2f")
     def getAdjustedFontSize: Int = {
-      devices.find{
-        case (k, v) => U.N.userAgent.contains(k)
+      devices.find {
+        case (k, v) => window.navigator.userAgent.contains(k)
       } match {
         case Some((k, v)) =>
           debug(f"$k found; fontSize: $v")
           v
         case None =>
           debug(f"no preferred device found")
-          (defaultFontSize - U.W.devicePixelRatio)
-            .toInt match {
+          (defaultFontSize - window.devicePixelRatio).toInt match {
             case n if n % 2 == 0 =>
               n
             case n =>
@@ -37,22 +37,22 @@ object App extends Logger {
     fontSize
   }
 
-  lazy val viewer = new Viewer()
-
   def setBaseFontSize(): Unit = {
-    val html = document.getElementsByTagName("html")(0).asInstanceOf[Html]
-    val fontSize = baseFontSize
-    debug(f"set html.style.fontSize = $fontSize")
-    html.style.fontSize = fontSize.toString
+    val h = document.getElementsByTagName("html")(0).asInstanceOf[html.Html]
+    debug(f"set html.style.fontSize = $baseFontSize")
+    h.style.fontSize = baseFontSize.toString
   }
 
   def fallback(): Unit = {
-    val html = document.getElementsByTagName("html")(0).asInstanceOf[Html]
-    val body = document.getElementsByTagName("body")(0).asInstanceOf[Body]
+    val h = document.getElementsByTagName("html")(0).asInstanceOf[html.Html]
+    val b = document.getElementsByTagName("body")(0).asInstanceOf[html.Body]
     debug(f"fallback to standard style")
-    html.style.overflowY = "auto"
-    body.style.overflowY = "auto"
+    h.style.overflowY = "auto"
+    b.style.overflowY = "auto"
   }
+
+  val flashRefreshInterval = 10 // ms
+  var alreadyTouched = false // whether app already touched or not
 
   @elidable(elidable.FINE)
   def dump(): Unit = {
@@ -61,14 +61,31 @@ object App extends Logger {
     }
   }
 
+  var chapters = mutable.ArrayBuffer.empty[Chapter]
+  var viewer, audioPlayer = null
+
+  def reset(): Unit = {
+    mutable.ArrayBuffer.empty[Chapter]
+    viewer = null
+  }
+
   @JSExport
   def device(name: String, fontSize: Int) = {
     devices += (name -> fontSize)
     this
   }
 
+  @JSExport
+  def chapter(id: String, caption: String): Unit = {
+    document.getElementById(id) match {
+      case elem if js.isUndefined(elem) =>
+        fatal(f"no element matched with the given id: $id")
+      case _ =>
+        chapters += new Chapter(document.getElementById(id).asInstanceOf[HTMLUnknownElement], caption)
+    }
+  }
+
   // audio
-  // chapter
   // head
 
   @JSExport
@@ -78,13 +95,16 @@ object App extends Logger {
     setBaseFontSize()
     window.addEventListener("DOMContentLoaded", DOMContentLoadedHander)
     window.addEventListener("load", loadHandler)
+    reset()
   }
+
   val DOMContentLoadedHander: js.Function1[dom.Event, Any] = (e: dom.Event) => {
     if (!Viewer.canRun) {
       fallback()
       fatal("ankiIframeViewerApp cannot work on old browsers :(")
     } else {
-      viewer.run()
+      viewer = new Viewer(, chapters.toList)
+      audioPlayer = new AudioPlayer()
     }
   }
 
