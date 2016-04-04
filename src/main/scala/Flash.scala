@@ -65,6 +65,7 @@ class Flash extends Logger {
       } else if (delta < 10000) {
         val alpha = 1 - math.pow((delta - 500) / 500, 2)
         if (alpha < 0) {
+          clearTimer()
           hide()
         } else {
           container.style.opacity = f"$alpha%.5f"
