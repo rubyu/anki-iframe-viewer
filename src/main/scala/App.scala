@@ -86,7 +86,7 @@ object App extends Logger {
   var touchEvent: TouchEvent = null
   var touchDispatcher: Dispatcher = null
   var mouseDispatcher: Dispatcher = null
-  
+
   @JSExport
   def device(name: String, fontSize: Int) = {
     devices += (name -> fontSize)
@@ -150,36 +150,45 @@ object App extends Logger {
       })
 
       document.addEventListener("mousedown", (event: dom.MouseEvent) => {
+        debug(f"mousedown: $event")
         mouseDispatcher.dispatchStart(0, event.pageX, event.pageY)
         event.preventDefault()
       })
       document.addEventListener("mousemove", (event: dom.MouseEvent) => {
+        //debug(f"mousemove: $event")
         mouseDispatcher.dispatchMove(0, event.pageX, event.pageY)
         event.preventDefault()
       })
       document.addEventListener("mouseup", (event: dom.MouseEvent) => {
+        debug(f"mouseup: $event")
         mouseDispatcher.dispatchEnd(0, event.pageX, event.pageY)
         event.preventDefault()
       })
 
       document.addEventListener("touchstart", (event: dom.TouchEvent) => {
         for (i <- 0 until event.changedTouches.length) {
-          val touch = event.touches(i)
-          touchDispatcher.dispatchStart(touch.identifier.toInt, touch.pageX, touch.pageY)
+          val touch = event.changedTouches(i)
+          debug(f"touchstart: $touch")
+          touchDispatcher.dispatchStart(touch.identifier, touch.pageX, touch.pageY)
         }
         event.preventDefault()
       })
+
+      //todo touchcancel
+
       document.addEventListener("touchmove", (event: dom.TouchEvent) => {
         for (i <- 0 until event.changedTouches.length) {
-          val touch = event.touches(i)
-          touchDispatcher.dispatchMove(touch.identifier.toInt, touch.pageX, touch.pageY)
+          val touch = event.changedTouches(i)
+          //debug(f"touchmove: $touch")
+          touchDispatcher.dispatchMove(touch.identifier, touch.pageX, touch.pageY)
         }
         event.preventDefault()
       })
       document.addEventListener("touchend", (event: dom.TouchEvent) => {
         for (i <- 0 until event.changedTouches.length) {
-          val touch = event.touches(i)
-          touchDispatcher.dispatchEnd(touch.identifier.toInt, touch.pageX, touch.pageY)
+          val touch = event.changedTouches(i)
+          debug(f"touchend: $touch")
+          touchDispatcher.dispatchEnd(touch.identifier, touch.pageX, touch.pageY)
         }
         event.preventDefault()
       })
