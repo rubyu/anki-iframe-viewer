@@ -58,7 +58,7 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
     }, App.minLongTouchMillis)
   }
   def move(id: Int, x: Double, y: Double): Unit = {
-    debug(f"move| id: $id, x: $x, y: $y")
+    //debug(f"move| id: $id, x: $x, y: $y")
     tryFirstTouch()
     if (!has(id)) {
       debug("the GestureLog corresponding to id($d) was not found")
