@@ -68,10 +68,8 @@ class Viewer(flash: Flash, chapters: List[Chapter]) extends Logger {
   def goPrevChapter(): Unit = {
     findActiveChapter(chapters) match {
       case Some(c: Chapter) =>
-        if (atFirstPageOf(c)) {
-          if (c == chapters.head) go(StartOfCard)
-          else go(chapters(chapters.indexOf(c)-1))
-        }
+        if (c == chapters.head && atFirstPageOf(c)) go(StartOfCard)
+        else go(chapters(chapters.indexOf(c)-1))
       case Some(StartOfCard) => go(StartOfCard)
       case Some(EndOfCard) =>
         if (chapters.isEmpty) go(StartOfCard)
@@ -82,10 +80,8 @@ class Viewer(flash: Flash, chapters: List[Chapter]) extends Logger {
   def goNextChapter(): Unit = {
     findActiveChapter(chapters.reverse) match {
       case Some(c: Chapter) =>
-        if (atLastPageOf(c)) {
-          if (c == chapters.last) go(EndOfCard)
-          else go(chapters(chapters.indexOf(c)+1))
-        }
+        if (c == chapters.last && atLastPageOf(c)) go(EndOfCard)
+        else go(chapters(chapters.indexOf(c)+1))
       case Some(EndOfCard) => go(EndOfCard)
       case Some(StartOfCard) =>
         if (chapters.isEmpty) go(EndOfCard)
