@@ -59,7 +59,7 @@ class Flash extends Logger {
     val id = window.setInterval(() => {
       val t2 = js.Date.now()
       val delta = t2 - t1
-      debug(f"timer published at: $t1; current: $t2")
+      //debug(f"timer published at: $t1; current: $t2")
       if (delta < 500) {
         // do nothing
       } else if (delta < 10000) {
