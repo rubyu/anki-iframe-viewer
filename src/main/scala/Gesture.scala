@@ -27,7 +27,7 @@ class GestureLog(val start: GestureLogItem) {
 }
 
 class Gesture(touchEvent: TouchEvent) extends Logger {
-  val gestures = mutable.HashMap.empty[Int, GestureLog]
+  val gestures = mutable.HashMap.empty[Double, GestureLog]
 
   def tryFirstTouch(): Unit = {
     if (!App.alreadyTouched) {
@@ -36,7 +36,7 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
     }
   }
 
-  def start(id: Int, x: Double, y: Double): Unit = {
+  def start(id: Double, x: Double, y: Double): Unit = {
     debug(f"start| id: $id, x: $x, y: $y")
     tryFirstTouch()
     val start = new GestureLogItem(x, y)
@@ -47,7 +47,7 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
       if (g.end.isDefined) {
         debug("gesture already finished")
       } else {
-        checkLongTap(g )
+        checkLongTap(g)
         if (g.tpe == LongTap) {
           debug(f"LongTap")
           touchEvent.longTapStart()
@@ -57,19 +57,19 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
       }
     }, App.minLongTouchMillis)
   }
-  def move(id: Int, x: Double, y: Double): Unit = {
+  def move(id: Double, x: Double, y: Double): Unit = {
     //debug(f"move| id: $id, x: $x, y: $y")
     tryFirstTouch()
     if (!has(id)) {
-      debug("the GestureLog corresponding to id($d) was not found")
+      debug(f"the GestureLog corresponding to id($id) was not found")
       return
     }
     gestures(id).moves += new GestureLogItem(x, y)
   }
-  def end(id: Int, x: Double, y: Double): Unit = {
+  def end(id: Double, x: Double, y: Double): Unit = {
     debug(f"end| id: $id, x: $x, y: $y")
     if (!has(id)) {
-      debug("the GestureLog corresponding to id($d) was not found")
+      debug(f"the GestureLog corresponding to id($id) was not found")
       return
     }
     val g = gestures(id)
@@ -81,9 +81,9 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
     debug(f"type: ${ g.tpe }")
   }
 
-  def delete(id: Int): Unit = gestures.remove(id)
-  def has(id: Int) = gestures.contains(id)
-  def get(id: Int) = gestures(id)
+  def delete(id: Double): Unit = gestures.remove(id)
+  def has(id: Double) = gestures.contains(id)
+  def get(id: Double) = gestures(id)
 
   def hasNoMoveEvents(g: GestureLog) = {
     g.moves.filter {
