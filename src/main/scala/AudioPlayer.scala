@@ -1,14 +1,13 @@
 
-import scala.scalajs.js
 import org.scalajs.dom
 import org.scalajs.dom.html
 
 
 class AudioPlayer(audio: html.Audio) extends Logger {
   var listener = 0
-  var setupped = false
-  def setup(): Unit = {
-    if (!setupped) {
+  var loaded = false
+  def load(): Unit = {
+    if (!loaded) {
       debug(f"setup| listener: $listener")
       debug(f"trying to load audio")
       audio.load()
@@ -17,7 +16,7 @@ class AudioPlayer(audio: html.Audio) extends Logger {
         debug(f"ended| listener: $listener")
         if (listener > 0) _play()
       })
-      setupped = true
+      loaded = true
     }
   }
   def _play(): Unit = {
