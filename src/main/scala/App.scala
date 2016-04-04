@@ -4,6 +4,7 @@ import scalajs.js
 import scalajs.js.annotation.JSExport
 import org.scalajs.dom
 import org.scalajs.dom.{document, window}
+import org.scalajs.dom.window.screen
 import org.scalajs.dom.html
 import org.scalajs.dom.raw.HTMLUnknownElement
 
@@ -51,22 +52,52 @@ object App extends Logger {
     b.style.overflowY = "auto"
   }
 
-  val flashRefreshInterval = 10 // ms
-  var alreadyTouched = false // whether app already touched or not
+  val UIRefreshIntervalMillis = 10 //ms
+  // whether app already touched or not
+  var alreadyTouched = false
+  lazy val minSwipeSize = baseFontSize * 2 //ms
+  val centerTapRatio = 0.20
+  lazy val minLongSwipeSize = math.min(screen.height, screen.width) * 0.65 //px
+  val minLongTouchMillis = 1000 //ms
+  val maxGestureMillis = 3000 //ms
+  val dispatcherDuplicateEventWindowMillis = 1500 //ms
 
   @elidable(elidable.FINE)
   def dump(): Unit = {
     devices.zipWithIndex.foreach {
-      case ((k, v), i) => debug(f"device[$i] $k -> $v")
+      case ((k, v), i) => debug(f"device setting[$i] $k -> $v")
     }
+    debug(f"UIRefreshIntervalMillis: $UIRefreshIntervalMillis")
+    debug(f"alreadyTouched: $alreadyTouched")
+    debug(f"minSwipeSize: $minSwipeSize")
+    debug(f"centerTapRatio: $centerTapRatio")
+    debug(f"minLongSwipeSize: $minLongSwipeSize")
+    debug(f"minLongTouchMillis: $minLongTouchMillis")
+    debug(f"maxGestureMillis: $maxGestureMillis")
+    debug(f"dispatcherDuplicateEventWindowMillis: $dispatcherDuplicateEventWindowMillis")
   }
 
-  var chapters = mutable.ArrayBuffer.empty[Chapter]
-  var viewer, audioPlayer = null
+  var audioQuery: Option[String] = None
+  //var chapters = mutable.ArrayBuffer.empty[Chapter]
+  var chapterQueries = mutable.ArrayBuffer.empty[(String, String)]
+  var flash: Flash = null
+  var audioPlayer: AudioPlayer = null
+  var viewer: Viewer = null
+  var mouseEvent: MouseWheelEvent = null
+  var touchEvent: TouchEvent = null
+  var touchDispatcher: Dispatcher = null
+  var mouseDispatcher: Dispatcher = null
 
   def reset(): Unit = {
-    mutable.ArrayBuffer.empty[Chapter]
+    audioQuery = None
+    chapterQueries = mutable.ArrayBuffer.empty[(String, String)]
+    flash = null
+    audioPlayer = null
     viewer = null
+    mouseEvent = null
+    touchEvent = null
+    touchDispatcher = null
+    mouseDispatcher = null
   }
 
   @JSExport
@@ -76,41 +107,99 @@ object App extends Logger {
   }
 
   @JSExport
-  def chapter(id: String, caption: String): Unit = {
-    document.getElementById(id) match {
-      case elem if js.isUndefined(elem) =>
-        fatal(f"no element matched with the given id: $id")
-      case _ =>
-        chapters += new Chapter(document.getElementById(id).asInstanceOf[HTMLUnknownElement], caption)
-    }
+  def audio(query: String) = {
+    audioQuery = Option(query)
+    this
   }
 
-  // audio
-  // head
+  @JSExport
+  def chapter(query: String, caption: String) = {
+    chapterQueries += ((query, caption))
+    this
+  }
 
   @JSExport
   def run(): Unit = {
     info("start")
     dump()
     setBaseFontSize()
-    window.addEventListener("DOMContentLoaded", DOMContentLoadedHander)
+    window.addEventListener("DOMContentLoaded", DOMContentLoadedHandler)
     window.addEventListener("load", loadHandler)
     reset()
   }
 
-  val DOMContentLoadedHander: js.Function1[dom.Event, Any] = (e: dom.Event) => {
+  val DOMContentLoadedHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
     if (!Viewer.canRun) {
       fallback()
-      fatal("ankiIframeViewerApp cannot work on old browsers :(")
+      fatal("AnkiIframeViewer cannot work on old browsers :(")
     } else {
-      viewer = new Viewer(, chapters.toList)
-      audioPlayer = new AudioPlayer()
+      val audio = audioQuery match {
+        case Some(query) => Option(document.querySelector(query))
+        case None => None
+      }
+      val chapters = chapterQueries.map {
+        case (query, caption) => Option(document.querySelector(query)) match {
+            case Some(elem) => new Chapter(elem.asInstanceOf[HTMLUnknownElement], caption)
+            case None => null
+          }
+      } .filter { chapter => Option(chapter).isDefined } .toList
+
+      flash = new Flash()
+      if (audio.isDefined) {
+        audioPlayer = new AudioPlayer(audio.get.asInstanceOf[html.Audio])
+      }
+      viewer = new Viewer(flash, chapters)
+      mouseEvent = new MouseWheelEvent(viewer)
+      touchEvent = new TouchEvent(viewer, Option(audioPlayer))
+      touchDispatcher = new Dispatcher(touchEvent)
+      mouseDispatcher = new Dispatcher(touchEvent, Option(touchDispatcher))
+
+      document.addEventListener("mousewheel", (event: dom.WheelEvent) => {
+        if (event.deltaX > 0) mouseEvent.wheelUp()
+        else mouseEvent.wheelDown()
+        event.preventDefault()
+      })
+
+      document.addEventListener("mousedown", (event: dom.MouseEvent) => {
+        mouseDispatcher.dispatchStart(0, event.pageX, event.pageY)
+        event.preventDefault()
+      })
+      document.addEventListener("mousemove", (event: dom.MouseEvent) => {
+        mouseDispatcher.dispatchMove(0, event.pageX, event.pageY)
+        event.preventDefault()
+      })
+      document.addEventListener("mouseup", (event: dom.MouseEvent) => {
+        mouseDispatcher.dispatchEnd(0, event.pageX, event.pageY)
+        event.preventDefault()
+      })
+
+      document.addEventListener("touchstart", (event: dom.TouchEvent) => {
+        for (i <- 0 until event.changedTouches.length) {
+          val touch = event.touches(i)
+          touchDispatcher.dispatchStart(touch.identifier.toInt, touch.pageX, touch.pageY)
+        }
+        event.preventDefault()
+      })
+      document.addEventListener("touchmove", (event: dom.TouchEvent) => {
+        for (i <- 0 until event.changedTouches.length) {
+          val touch = event.touches(i)
+          touchDispatcher.dispatchMove(touch.identifier.toInt, touch.pageX, touch.pageY)
+        }
+        event.preventDefault()
+      })
+      document.addEventListener("touchend", (event: dom.TouchEvent) => {
+        for (i <- 0 until event.changedTouches.length) {
+          val touch = event.touches(i)
+          touchDispatcher.dispatchEnd(touch.identifier.toInt, touch.pageX, touch.pageY)
+        }
+        event.preventDefault()
+      })
     }
   }
 
   val loadHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
     if (Viewer.canRun) {
-      //
+      viewer.castCurrentState()
     }
   }
 }

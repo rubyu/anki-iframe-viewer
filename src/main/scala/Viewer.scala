@@ -22,8 +22,8 @@ class Viewer(flash: Flash, chapters: List[Chapter]) extends Logger {
       case q => q * n
     }
   }
-  def setPosition(pos: Double, caption: String) = setPosition(pos, Some(caption))
-  def setPosition(pos: Double) = setPosition(pos, None)
+  def setPosition(pos: Double, caption: String): Unit = setPosition(pos, Some(caption))
+  def setPosition(pos: Double): Unit = setPosition(pos, None)
   def setPosition(pos: Double, caption: Option[String]): Unit = {
     window.scrollTo(pos.toInt, 0)
     flash.cast(caption)
@@ -77,7 +77,7 @@ class Viewer(flash: Flash, chapters: List[Chapter]) extends Logger {
   def goFirstChapter(): Unit = go(chapters.head)
   def goLastChapter(): Unit = go(chapters.last)
   def castCurrentState(): Unit = {
-    flash.cast(findActiveChapter(chapters).caption)
+    flash.cast(Option(findActiveChapter(chapters).caption))
   }
   def run(): Unit = {
     info("start")

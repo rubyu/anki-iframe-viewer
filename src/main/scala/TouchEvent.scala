@@ -1,5 +1,5 @@
 
-class TouchEvent(viewer: Viewer, audioPlayer: AudioPlayer) extends Logger {
+class TouchEvent(viewer: Viewer, audioPlayer: Option[AudioPlayer] = None) extends Logger {
   def up(): Unit = viewer.goNextPage()
   def down(): Unit = viewer.goPrevPage()
   def left(): Unit = viewer.goNextPage()
@@ -11,7 +11,7 @@ class TouchEvent(viewer: Viewer, audioPlayer: AudioPlayer) extends Logger {
   def leftTap(): Unit = viewer.goNextPage()
   def centerTap(): Unit = {}
   def rightTap(): Unit = viewer.goPrevPage()
-  def longTapStart(): Unit = audioPlayer.contract()
-  def longTapEnd(): Unit = audioPlayer.cancel()
-  def firstTouch(): Unit = audioPlayer.setup()
+  def longTapStart(): Unit = if (audioPlayer.isDefined) audioPlayer.get.contract()
+  def longTapEnd(): Unit = if (audioPlayer.isDefined) audioPlayer.get.cancel()
+  def firstTouch(): Unit = if (audioPlayer.isDefined) audioPlayer.get.setup()
 }

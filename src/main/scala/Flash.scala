@@ -1,6 +1,5 @@
 
 import scala.scalajs.js
-import org.scalajs.dom
 import org.scalajs.dom.{document, html, window}
 import org.scalajs.dom.window.screen
 
@@ -35,7 +34,15 @@ class Flash extends Logger {
     denominator.innerHTML = pages.toString
   }
 
+  def clearTimer(): Unit = {
+    if (timer.isDefined) {
+      window.clearInterval(timer.get)
+      timer = None
+    }
+  }
+
   def init(): Unit = {
+    clearTimer()
     refresh()
     container.style.opacity = "1"
     container.style.visibility = "visible"
@@ -52,20 +59,18 @@ class Flash extends Logger {
     val id = window.setInterval(() => {
       val t2 = js.Date.now()
       val delta = t2 - t1
-      debug(f"timer[$id] published at: $t1; current: $t2")
+      debug(f"timer published at: $t1; current: $t2")
       if (delta < 500) {
         // do nothing
       } else if (delta < 10000) {
         val alpha = 1 - math.pow((delta - 500) / 500, 2)
-        if (alpha < 0 && timer.isDefined) {
-          window.clearInterval(id)
-          timer = None
+        if (alpha < 0) {
           hide()
         } else {
           container.style.opacity = f"$alpha%.5f"
         }
       }
-    }, App.flashRefreshInterval)
+    }, App.UIRefreshIntervalMillis)
     timer = Some(id)
   }
 }

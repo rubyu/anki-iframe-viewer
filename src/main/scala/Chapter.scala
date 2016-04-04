@@ -2,8 +2,8 @@ import org.scalajs.dom.raw.HTMLUnknownElement
 import org.scalajs.dom.{document, html, window}
 
 sealed trait LogicalChapter {
-  val offsetLeft: Double
-  val caption: String
+  def offsetLeft: Double
+  def caption: String
 }
 
 class Chapter(element: HTMLUnknownElement, val caption: String) extends LogicalChapter {
@@ -12,7 +12,7 @@ class Chapter(element: HTMLUnknownElement, val caption: String) extends LogicalC
 }
 
 object StartOfCard extends LogicalChapter {
-  def offsetLeft = 0
+  def offsetLeft = 0.0
   def caption = "カードのはじまり"
 }
 
