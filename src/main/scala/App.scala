@@ -78,7 +78,6 @@ object App extends Logger {
   }
 
   var audioQuery: Option[String] = None
-  //var chapters = mutable.ArrayBuffer.empty[Chapter]
   var chapterQueries = mutable.ArrayBuffer.empty[(String, String)]
   var flash: Flash = null
   var audioPlayer: AudioPlayer = null
@@ -87,19 +86,7 @@ object App extends Logger {
   var touchEvent: TouchEvent = null
   var touchDispatcher: Dispatcher = null
   var mouseDispatcher: Dispatcher = null
-
-  def reset(): Unit = {
-    audioQuery = None
-    chapterQueries = mutable.ArrayBuffer.empty[(String, String)]
-    flash = null
-    audioPlayer = null
-    viewer = null
-    mouseEvent = null
-    touchEvent = null
-    touchDispatcher = null
-    mouseDispatcher = null
-  }
-
+  
   @JSExport
   def device(name: String, fontSize: Int) = {
     devices += (name -> fontSize)
@@ -125,10 +112,9 @@ object App extends Logger {
     setBaseFontSize()
     window.addEventListener("DOMContentLoaded", DOMContentLoadedHandler)
     window.addEventListener("load", loadHandler)
-    reset()
   }
 
-  val DOMContentLoadedHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
+  def DOMContentLoadedHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
     if (!Viewer.canRun) {
       fallback()
       fatal("AnkiIframeViewer cannot work on old browsers :(")
@@ -137,12 +123,15 @@ object App extends Logger {
         case Some(query) => Option(document.querySelector(query))
         case None => None
       }
+      debug(f"audioQuery: $audioQuery, audio: $audio")
+
       val chapters = chapterQueries.map {
         case (query, caption) => Option(document.querySelector(query)) match {
             case Some(elem) => new Chapter(elem.asInstanceOf[HTMLUnknownElement], caption)
             case None => null
           }
       } .filter { chapter => Option(chapter).isDefined } .toList
+      debug(f"chapterQueries: $chapterQueries, chapters: $chapters")
 
       flash = new Flash()
       if (audio.isDefined) {
@@ -197,7 +186,7 @@ object App extends Logger {
     }
   }
 
-  val loadHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
+  def loadHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
     if (Viewer.canRun) {
       viewer.castCurrentState()
     }
