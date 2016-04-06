@@ -144,8 +144,10 @@ object App extends Logger {
       mouseDispatcher = new Dispatcher(touchEvent, Option(touchDispatcher))
 
       document.addEventListener("mousewheel", (event: dom.WheelEvent) => {
-        if (event.deltaX > 0) mouseEvent.wheelUp()
-        else mouseEvent.wheelDown()
+        event.deltaY match {
+          case y if y < 0 => mouseEvent.wheelUp()
+          case y if y > 0 => mouseEvent.wheelDown()
+        }
         event.preventDefault()
       })
 
