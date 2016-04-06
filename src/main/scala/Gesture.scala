@@ -1,7 +1,6 @@
 import scala.collection.mutable
 import scala.scalajs.js
 import org.scalajs.dom.window
-import org.scalajs.dom.window.screen
 
 sealed trait GestureType
 case object ND extends GestureType
@@ -103,8 +102,8 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
 
   def getTapType(x: Double): GestureType = {
     val pos = x - window.pageXOffset
-    val border = screen.width / 2
-    val centerBorder = screen.width * App.centerTapRatio / 2
+    val border = window.innerWidth / 2
+    val centerBorder = window.innerWidth * App.centerTapRatio / 2
     if (pos > border) {
       if (pos > border + centerBorder) RightTap
       else CenterTap

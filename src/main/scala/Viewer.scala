@@ -13,7 +13,7 @@ object Viewer {
 }
 
 class Viewer(flash: Flash, chapters: List[Chapter]) extends Logger {
-  def viewSize: Double = window.screen.width
+  def viewSize: Double = window.innerWidth
   def position: Double = window.pageXOffset
   def ordinaryPosition(m: Double): Double = {
     val n = viewSize
