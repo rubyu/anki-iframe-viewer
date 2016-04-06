@@ -65,8 +65,10 @@ object Build extends sbt.Build {
     if (dist.exists && dist.isFile) {
       throw new IllegalStateException(s"'$dist' is not a directory")
     }
-    dist.delete()
-    dist.mkdir()
+    if (!dist.exists()) {
+      dist.mkdir()
+    }
+    dist.listFiles().map(_.delete())
     copyDirectory(resources, dist, overwrite = true, preserveLastModified = true)
     copy(files, overwrite = true, preserveLastModified = true)
   }
