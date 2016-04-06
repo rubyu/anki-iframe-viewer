@@ -197,7 +197,7 @@ object App extends Logger {
 
   def loadHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
     if (Viewer.canRun) {
-      viewer.castCurrentState()
+      viewer.goFirstChapter()
     }
   }
 }

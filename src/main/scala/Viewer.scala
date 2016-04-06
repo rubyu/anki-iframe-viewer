@@ -33,23 +33,15 @@ class Viewer(flash: Flash, chapters: List[Chapter]) extends Logger {
     window.scrollTo(pos.toInt, 0)
     flash.cast(caption)
   }
-  def findActiveChapter(list: Iterable[Chapter]): Option[LogicalChapter] = {
+  def activeChapters: List[Chapter] = {
     val pos = ordinaryPosition(position)
-    list.find { c =>
-      if (pos >= c.offsetLeft && pos <= c.offsetLeft + c.offsetWidth) true
-      else false
-    } orElse {
-      if (list.isEmpty) {
-        if (position < document.body.scrollWidth / 2) Option(StartOfCard)
-        else Option(EndOfCard)
-      } else {
-        if (pos < chapters.head.offsetLeft) Option(StartOfCard)
-        else Option(EndOfCard)
-      }
+    chapters.reverse.find(_.offsetLeft <= pos) match {
+      case Some(lower) if pos == lower.offsetLeft => chapters.filter(_.offsetLeft == lower.offsetLeft)
+      case Some(lower) => lower :: Nil
+      case None => Nil
     }
   }
   def atFirstPageOf(c: Chapter) = position == c.offsetLeft
-  def atLastPageOf(c: Chapter) = position > c.offsetLeft + c.offsetWidth - viewSize
   def go(chapter: LogicalChapter): Unit = {
     debug(f"go: $chapter")
     chapter match {
@@ -66,36 +58,38 @@ class Viewer(flash: Flash, chapters: List[Chapter]) extends Logger {
   def goPrevPage(): Unit = setPosition(ordinaryPosition(position) - viewSize)
   def goNextPage(): Unit = setPosition(ordinaryPosition(position) + viewSize)
   def goPrevChapter(): Unit = {
-    findActiveChapter(chapters) match {
-      case Some(c: Chapter) if c == chapters.head => go(StartOfCard)
-      case Some(c: Chapter) => go(chapters(chapters.indexOf(c)-1))
-      case Some(StartOfCard) => go(StartOfCard)
-      case Some(EndOfCard) =>
-        if (chapters.isEmpty) go(StartOfCard)
-        else go(chapters.last)
-      case None => fatal(f"active chapter was not found")
+    if (chapters.isEmpty) {
+      go(StartOfCard)
+      return
+    }
+    activeChapters match {
+      case Nil => go(StartOfCard)
+      case xs => xs.head match {
+        case c if !atFirstPageOf(c) => go(c)
+        case c if c == chapters.head => go(StartOfCard)
+        case c => go(chapters(chapters.indexOf(c)-1))
+      }
     }
   }
   def goNextChapter(): Unit = {
-    findActiveChapter(chapters.reverse) match {
-      case Some(c: Chapter) if c == chapters.last => go(EndOfCard)
-      case Some(c: Chapter) => go(chapters(chapters.indexOf(c)+1))
-      case Some(EndOfCard) => go(EndOfCard)
-      case Some(StartOfCard) =>
-        if (chapters.isEmpty) go(EndOfCard)
-        else go(chapters.head)
-      case None => fatal(f"active chapter was not found")
+    if (chapters.isEmpty) {
+      go(EndOfCard)
+      return
+    }
+    activeChapters match {
+      case Nil => go(EndOfCard)
+      case xs => xs.last match {
+        case c if c == chapters.last => go(EndOfCard)
+        case c => go(chapters(chapters.indexOf(c)+1))
+      }
     }
   }
-  def goFirstChapter(): Unit = go(chapters.head)
-  def goLastChapter(): Unit = go(chapters.last)
-  def castCurrentState(): Unit = {
-    findActiveChapter(chapters) match {
-      case Some(c) => flash.cast(Option(c.caption))
-      case None => fatal(f"active chapter was not found")
-    }
+  def goFirstChapter(): Unit = {
+    if (chapters.isEmpty) go(StartOfCard)
+    else go(chapters.head)
   }
-  def run(): Unit = {
-    info("start")
+  def goLastChapter(): Unit = {
+    if (chapters.isEmpty) go(EndOfCard)
+    else go(chapters.last)
   }
 }

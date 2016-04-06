@@ -8,7 +8,6 @@ sealed trait LogicalChapter {
 
 class Chapter(element: HTMLUnknownElement, val caption: String) extends LogicalChapter {
   def offsetLeft = element.offsetLeft
-  def offsetWidth = element.offsetWidth
 }
 
 object StartOfCard extends LogicalChapter {
