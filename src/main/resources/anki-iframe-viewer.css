@@ -16,14 +16,18 @@ html * {
 body {
   margin: 1rem 0 1rem 0;
   height: calc(100% - 2rem);
-  -webkit-column-width: 100vw;
-  -webkit-column-gap: 0;
   font-family: _myfont00, _myfont01, _myfont02, _myfont03, sans-serif, serif;
   text-align: left;
   -webkit-text-size-adjust: 100%;
-  line-height: 1.6rem;
+  line-height: 1.7rem;
   color: black;
   background-color: white;
+}
+
+#detached {
+  height: 100%;
+  -webkit-column-width: 100vw;
+  -webkit-column-gap: 0;
 }
 
 #flash-container {
@@ -40,7 +44,7 @@ body {
   display: inline-block;
 }
 #flash-container-right {
-  
+
 }
 #flash-container-numerator {
   display: inline;
@@ -60,7 +64,6 @@ body {
   margin-left: 1rem;
   display: inline;
   font-size: 1.5rem;
-  
 }
 #detached-01 {
   position: absolute;
@@ -100,23 +103,18 @@ body {
 }
 #detached-04::before {
   content: "【ランダムハウス英語辞典】";
-  margin-left: 1rem;
 }
 #detached-05::before {
   content: "【研究社 新英和中辞典】";
-  margin-left: 1rem;
 }
 #detached-06::before {
   content: "【研究社 新英和大辞典】";
-  margin-left: 1rem;
 }
 #detached-07::before {
   content: "【斎藤和英大辞典】";
-  margin-left: 1rem;
 }
 #detached-08::before {
   content: "【ロングマン現代英英辞典】";
-  margin-left: 1rem;
 }
 
 .ebquery {
@@ -132,7 +130,8 @@ body {
 .ebsp {  vertical-align: super;  }
 .ebec {
   vertical-align: text-bottom;
-  max-height: 100%;
+  height: 1.1rem;
+  padding-bottom: 0.25rem;
 }
 
 .ebkw,
@@ -141,7 +140,6 @@ body {
 .sense2,
 .sense3,
 .LDOCE5 .sup {
-  display: inline-block;
   padding-left: 0.2rem;
   padding-right: 0.2rem;
 }
