@@ -56,7 +56,7 @@ object App extends Logger {
   var alreadyTouched = false
   lazy val minSwipeSize = baseFontSize * 2 //ms
   val centerTapRatio = 0.20
-  lazy val minLongSwipeSize = math.min(window.innerHeight, window.innerWidth) * 0.65 //px
+  lazy val minLongSwipeSize = math.min(window.innerHeight, window.innerWidth) * 0.5 //px
   val minLongTouchMillis = 1000 //ms
   val maxGestureMillis = 3000 //ms
   val dispatcherDuplicateEventWindowMillis = 1500 //ms
