@@ -25,6 +25,8 @@ object Build extends sbt.Build {
     )).
     settings(
       libraryDependencies ++= Seq(
+        "org.scala-lang" % "scala-reflect" % "2.11.8",
+        "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.4",
         "org.scala-js" %%% "scalajs-dom" % "0.9.0",
         "org.scalatest" % "scalatest_2.11" % "2.2.6" % "test"
       )
@@ -46,6 +48,8 @@ object Build extends sbt.Build {
     )).
     settings(
       libraryDependencies ++= Seq(
+        "org.scala-lang" % "scala-reflect" % "2.11.8",
+        "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.4",
         "org.scala-js" %%% "scalajs-dom" % "0.9.0",
         "org.scalatest" % "scalatest_2.11" % "2.2.6" % "test"
       )
