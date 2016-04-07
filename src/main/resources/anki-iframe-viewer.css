@@ -151,12 +151,16 @@ body {
 .KENE7J5  .sense1,
 .KENE7J5  .sense2,
 .KENE7J5  .sense3,
+.KQNEWEJ6 .sense1,
+.KQNEWEJ6 .sense2,
+.KQNEWEJ6 .sense3,
 .LDOCE5   .sense1,
 .LDOCE5   .sense2 {
  padding-left: 1.2rem;
 }
 .SRD      .pos,
 .KENE7J5  .pos,
+.KQNEWEJ6 .pos,
 .BODY     .pos {
  background-color: #e0ffe0;
 }
@@ -165,12 +169,15 @@ body {
 }
 .SRD      .sense1,
 .KENE7J5  .sense2,
+.KQNEWEJ6 .sense1,
+.KQNEWEJ6 .sense3,
 .BODY     .sense1,
 .LDOCE5   .sense1 {
  background-color: #ffe8e8;
 }
 .SRD      .sense2,
 .KENE7J5  .sense3,
+.KQNEWEJ6 .sense2,
 .LDOCE5   .sense2 {
  background-color: #e8ffff;
 }
