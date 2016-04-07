@@ -2,6 +2,8 @@ import scala.collection.mutable
 import scala.scalajs.js
 import org.scalajs.dom.window
 
+import scala.scalajs.js.Function0
+
 sealed trait GestureType
 case object ND extends GestureType
 case object LeftTap extends GestureType
@@ -38,20 +40,23 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
   def start(id: Double, x: Double, y: Double): Unit = {
     debug(f"start| id: $id, x: $x, y: $y")
     tryFirstTouch()
+    touchEvent.longTapEnd(id)
     val start = new GestureLogItem(x, y)
     val g = new GestureLog(start)
     gestures += (id -> g)
-    window.setTimeout(() => {
-      debug(f"callback of a timer to check whether or not LongTap; id: $id")
-      if (g.end.isDefined) {
-        debug("gesture already finished")
-      } else {
-        checkLongTap(g)
-        if (g.tpe == LongTap) {
-          debug(f"LongTap")
-          touchEvent.longTapStart()
+    window.setTimeout(new Function0[Any] {
+      override def apply(): Any = {
+        debug(f"callback of a timer to check whether or not LongTap; id: $id")
+        if (g.end.isDefined) {
+          debug("gesture already finished")
         } else {
-          debug(f"not LongTap")
+          checkLongTap(g)
+          if (g.tpe == LongTap) {
+            debug(f"LongTap")
+            touchEvent.longTapStart(id)
+          } else {
+            debug(f"not LongTap")
+          }
         }
       }
     }, App.minLongTouchMillis)

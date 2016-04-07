@@ -21,7 +21,7 @@ class Dispatcher(touchEvent: TouchEvent, preferredDispatcher: Option[Dispatcher]
         case LeftTap => touchEvent.leftTap()
         case CenterTap => touchEvent.centerTap()
         case RightTap => touchEvent.rightTap()
-        case LongTap => touchEvent.longTapEnd()
+        case LongTap => touchEvent.longTapEnd(id)
         case SwipeLeft => touchEvent.left()
         case SwipeRight => touchEvent.right()
         case SwipeUp => touchEvent.up()

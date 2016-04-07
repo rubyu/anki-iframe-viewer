@@ -1,37 +1,37 @@
-
+import scala.scalajs.js
 import org.scalajs.dom
 import org.scalajs.dom.html
-
+import scala.collection.mutable
 
 class AudioPlayer(audio: html.Audio) extends Logger {
-  var listener = 0
+  val listeners = mutable.HashSet.empty[Double]
   var loaded = false
   def load(): Unit = {
     if (!loaded) {
-      debug(f"setup| listener: $listener")
+      debug(f"setup| listeners: $listeners")
       debug(f"trying to load audio")
       audio.load()
       audio.play()
-      audio.addEventListener("ended", (e: dom.Event) => {
-        debug(f"ended| listener: $listener")
-        if (listener > 0) _play()
+      audio.addEventListener("ended", (event: dom.raw.Event) => {
+        debug(f"ended| listeners: $listeners")
+        if (listeners.nonEmpty) _play()
       })
       loaded = true
     }
   }
   def _play(): Unit = {
-    debug(f"play| listener: $listener")
+    debug(f"play| listeners: $listeners")
     audio.play()
   }
-  def contract(): Unit = {
-    debug(f"contract| listener: $listener")
-    if (listener == 0) _play()
-    listener += 1
-    debug(f"listener: $listener")
+  def contract(id: Double): Unit = {
+    debug(f"contract| listeners: $listeners")
+    if (listeners.isEmpty) _play()
+    listeners.add(id)
+    debug(f"listeners: $listeners")
   }
-  def cancel(): Unit = {
-    debug(f"cancel| listener: $listener")
-    listener -= 1
-    debug(f"listener: $listener")
+  def cancel(id: Double): Unit = {
+    debug(f"cancel| listeners: $listeners")
+    listeners.remove(id)
+    debug(f"listeners: $listeners")
   }
 }
