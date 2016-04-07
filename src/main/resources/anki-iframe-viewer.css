@@ -40,23 +40,23 @@ body {
   text-align: right;
   font-size: 0.8rem;
 }
-#flash-container-left {
+#flash-container-page-state-left {
   display: inline-block;
 }
-#flash-container-right {
+#flash-container-page-state-right {
 
 }
-#flash-container-numerator {
+#flash-container-page-state-numerator {
   display: inline;
 }
-#flash-container-numerator::after {
+#flash-container-page-state-numerator::after {
   margin: 0 0.3em 0 0.3em;
   content: "/";
 }
-#flash-container-denominator {
+#flash-container-page-state-denominator {
   display: inline;
 }
-#flash-container-text {
+#flash-container-page-state-text {
   display: inline;
 }
 

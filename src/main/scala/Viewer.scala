@@ -12,7 +12,7 @@ object Viewer {
   }
 }
 
-class Viewer(flash: Flash, chapters: List[Chapter]) extends Logger {
+class Viewer(app: App, chapters: List[Chapter]) extends Logger {
   def viewSize: Double = window.innerWidth
   def position: Double = window.pageXOffset
   def ordinaryPosition(m: Double): Double = {
@@ -31,7 +31,7 @@ class Viewer(flash: Flash, chapters: List[Chapter]) extends Logger {
   def setPosition(pos: Double, caption: Option[String]): Unit = {
     debug(f"set position: $pos")
     window.scrollTo(pos.toInt, 0)
-    flash.cast(caption)
+    app.flash.castPageState(caption)
   }
   def activeChapters: List[Chapter] = {
     val pos = ordinaryPosition(position)

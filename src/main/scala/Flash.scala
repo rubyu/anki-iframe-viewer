@@ -1,77 +1,112 @@
 
 import scala.scalajs.js
 import org.scalajs.dom.{document, html, window}
-import org.scalajs.dom.window.screen
 
 class Flash(app: App) extends Logger {
-  val container = document.createElement("div").asInstanceOf[html.Div]
+  // container
+  private val container = document.createElement("div").asInstanceOf[html.Div]
   container.id = "flash-container"
   hide()
-  val left = document.createElement("div").asInstanceOf[html.Div]
-  left.id = "flash-container-left"
-  val right = document.createElement("div").asInstanceOf[html.Div]
-  right.id = "flash-container-right"
-  val numerator = document.createElement("div").asInstanceOf[html.Div]
-  numerator.id = "flash-container-numerator"
-  val denominator = document.createElement("div").asInstanceOf[html.Div]
-  denominator.id = "flash-container-denominator"
-  val text = document.createElement("div").asInstanceOf[html.Div]
-  text.id = "flash-container-text"
-  left.appendChild(text)
-  right.appendChild(numerator)
-  right.appendChild(denominator)
-  container.appendChild(left)
-  container.appendChild(right)
   document.body.appendChild(container)
+  // info
+  private val info = document.createElement("div").asInstanceOf[html.Div]
+  info.id = "flash-container-info"
+  private val infoText = document.createElement("div").asInstanceOf[html.Div]
+  infoText.id = "flash-container-info-text"
+  info.appendChild(infoText)
+  container.appendChild(info)
+  // page
+  private val pageState = document.createElement("div").asInstanceOf[html.Div]
+  pageState.id = "flash-container-page-state"
+  private val pageStateLeft = document.createElement("div").asInstanceOf[html.Div]
+  pageStateLeft.id = "flash-container-page-state-left"
+  private val pageStateRight = document.createElement("div").asInstanceOf[html.Div]
+  pageStateRight.id = "flash-container-page-state-right"
+  private val pageStateNumerator = document.createElement("div").asInstanceOf[html.Div]
+  pageStateNumerator.id = "flash-container-page-state-numerator"
+  private val pageStateDenominator = document.createElement("div").asInstanceOf[html.Div]
+  pageStateDenominator.id = "flash-container-page-state-denominator"
+  private val pageStateText = document.createElement("div").asInstanceOf[html.Div]
+  pageStateText.id = "flash-container-page-state-text"
+  pageStateLeft.appendChild(pageStateText)
+  pageStateRight.appendChild(pageStateNumerator)
+  pageStateRight.appendChild(pageStateDenominator)
+  pageState.appendChild(pageStateLeft)
+  pageState.appendChild(pageStateRight)
+  container.appendChild(pageState)
 
-  var timer: Option[Int] = None
+  private var timer: Option[Int] = None
 
-  def refresh(): Unit = {
-    val page = math.floor(window.pageXOffset / screen.width).toInt + 1
-    val pages = math.floor(document.body.scrollWidth / screen.width).toInt
-    debug(f"page: $page, pages: $pages")
-    numerator.innerHTML = page.toString
-    denominator.innerHTML = pages.toString
-  }
-
-  def clearTimer(): Unit = {
+  private def clearTimer(): Unit = {
     if (timer.isDefined) {
       window.clearInterval(timer.get)
       timer = None
     }
   }
 
-  def init(): Unit = {
+  private def init(): Unit = {
+    hide()
     clearTimer()
-    refresh()
+    info.style.display = "none"
+    pageState.style.display = "none"
+  }
+
+  private def informationInit(): Unit = {
+    init()
+    info.style.display = "block"
+  }
+
+  private def pageStateInit(): Unit = {
+    init()
+    val page = math.floor(window.pageXOffset / window.innerWidth).toInt + 1
+    val pages = math.floor(document.body.scrollWidth / window.innerWidth).toInt
+    debug(f"page: $page, pages: $pages")
+    pageStateNumerator.innerHTML = page.toString
+    pageStateDenominator.innerHTML = pages.toString
+    pageState.style.display = "block"
+  }
+
+  private def hide(): Unit = {
+    container.style.visibility = "hidden"
+  }
+
+  private def show(): Unit = {
     container.style.opacity = "1"
     container.style.visibility = "visible"
   }
 
-  def hide(): Unit = {
-    container.style.visibility = "hidden"
+  private def fadeTimer(t1: Double) = () => {
+    val t2 = js.Date.now()
+    val delta = t2 - t1
+    //debug(f"timer published at: $t1; current: $t2")
+    if (delta < 500) {
+      // do nothing
+    } else if (delta < 10000) {
+      val alpha = 1 - math.pow((delta - 500) / 500, 2)
+      if (alpha < 0) {
+        clearTimer()
+        hide()
+      } else {
+        container.style.opacity = f"$alpha%.5f"
+      }
+    }
   }
 
-  def cast(caption: Option[String]): Unit = {
-    text.innerHTML = caption.getOrElse("")
-    init()
-    val t1 = js.Date.now()
-    val id = window.setInterval(() => {
-      val t2 = js.Date.now()
-      val delta = t2 - t1
-      //debug(f"timer published at: $t1; current: $t2")
-      if (delta < 500) {
-        // do nothing
-      } else if (delta < 10000) {
-        val alpha = 1 - math.pow((delta - 500) / 500, 2)
-        if (alpha < 0) {
-          clearTimer()
-          hide()
-        } else {
-          container.style.opacity = f"$alpha%.5f"
-        }
-      }
-    }, app.UIRefreshIntervalMillis)
+  private def cast(): Unit = {
+    show()
+    val id = window.setInterval(fadeTimer(js.Date.now()), app.UIRefreshIntervalMillis)
     timer = Some(id)
+  }
+
+  def castInformation(s: String): Unit = {
+    informationInit()
+    infoText.innerHTML = s
+    cast()
+  }
+
+  def castPageState(caption: Option[String]): Unit = {
+    pageStateInit()
+    pageStateText.innerHTML = caption.getOrElse("")
+    cast()
   }
 }

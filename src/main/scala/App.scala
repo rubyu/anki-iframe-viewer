@@ -92,7 +92,7 @@ class App(
   val minSwipeSize                        : Double = userMinSwipeSize.getOrElse(20)
   val minLongSwipeSize                    : Double = userMinLongSwipeSize.getOrElse(math.min(window.innerHeight, window.innerWidth) * 0.5)
   val minLongTouchMillis                  : Double = userMinLongTouchMillis.getOrElse(1000)
-  val maxGestureMillis                    : Double = userMaxGestureMillis.getOrElse(3000) //ms
+  val maxGestureMillis                    : Double = userMaxGestureMillis.getOrElse(2000) //ms
   val dispatcherDuplicateEventWindowMillis: Double = userDispatcherDuplicateEventWindowMillis.getOrElse(1500)
   val centerTapRatio                      : Double = userTapCenterRatio.getOrElse(0.20)
   val autoLoadAudio                       : Boolean = userAutoLoadAudio.getOrElse(true)
@@ -204,11 +204,11 @@ class App(
       if (audio.isDefined) {
         audioPlayer = new AudioPlayer(audio.get.asInstanceOf[html.Audio])
       }
-      viewer = new Viewer(flash, chapters)
-      mouseEvent = new MouseWheelEvent(viewer)
-      touchEvent = new TouchEvent(viewer, Option(audioPlayer))
-      touchDispatcher = new Dispatcher(this, touchEvent)
-      mouseDispatcher = new Dispatcher(this, touchEvent, Option(touchDispatcher))
+      viewer = new Viewer(this, chapters)
+      mouseEvent = new MouseWheelEvent(this)
+      touchEvent = new TouchEvent(this, Option(audioPlayer))
+      touchDispatcher = new Dispatcher(this)
+      mouseDispatcher = new Dispatcher(this, Option(touchDispatcher))
 
       document.addEventListener("mousewheel", mouseWheelHandler)
       document.addEventListener("mousedown", mouseDownHandler)

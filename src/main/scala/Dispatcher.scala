@@ -1,7 +1,7 @@
 import scala.scalajs.js
 
-class Dispatcher(app: App, touchEvent: TouchEvent, preferredDispatcher: Option[Dispatcher] = None) extends Logger {
-  val gesture = new Gesture(app, touchEvent)
+class Dispatcher(app: App, preferredDispatcher: Option[Dispatcher] = None) extends Logger {
+  val gesture = new Gesture(app)
 
   var lastDispatchTime = js.Date.now()
 
@@ -17,19 +17,20 @@ class Dispatcher(app: App, touchEvent: TouchEvent, preferredDispatcher: Option[D
     if (gesture.has(id)) {
       gesture.end(id, x, y)
       gesture.get(id).tpe match {
-        case ND =>
-        case LeftTap => touchEvent.leftTap()
-        case CenterTap => touchEvent.centerTap()
-        case RightTap => touchEvent.rightTap()
-        case LongTap => touchEvent.longTapEnd(id)
-        case SwipeLeft => touchEvent.left()
-        case SwipeRight => touchEvent.right()
-        case SwipeUp => touchEvent.up()
-        case SwipeDown => touchEvent.down()
-        case LongSwipeLeft => touchEvent.longLeft()
-        case LongSwipeRight => touchEvent.longRight()
-        case LongSwipeUp => touchEvent.longUp()
-        case LongSwipeDown => touchEvent.longDown()
+        case ND => // do nothing
+        case LeftTap => app.touchEvent.leftTap()
+        case CenterTap => app.touchEvent.centerTap()
+        case RightTap => app.touchEvent.rightTap()
+        case LongTap => app.touchEvent.longTapEnd(id)
+        case SwipeLeft => app.touchEvent.left()
+        case SwipeRight => app.touchEvent.right()
+        case SwipeUp => app.touchEvent.up()
+        case SwipeDown => app.touchEvent.down()
+        case LongSwipeLeft => app.touchEvent.longLeft()
+        case LongSwipeRight => app.touchEvent.longRight()
+        case LongSwipeUp => app.touchEvent.longUp()
+        case LongSwipeDown => app.touchEvent.longDown()
+        case TimeOut => // do nothing
       }
       gesture.delete(id)
     }
