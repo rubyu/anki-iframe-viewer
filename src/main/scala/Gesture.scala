@@ -27,13 +27,13 @@ class GestureLog(val start: GestureLogItem) {
   var tpe: GestureType = ND
 }
 
-class Gesture(touchEvent: TouchEvent) extends Logger {
+class Gesture(app: App, touchEvent: TouchEvent) extends Logger {
   val gestures = mutable.HashMap.empty[Double, GestureLog]
 
   def tryFirstTouch(): Unit = {
-    if (!App.alreadyTouched) {
+    if (!app.alreadyTouched) {
       touchEvent.firstTouch()
-      App.alreadyTouched = true
+      app.alreadyTouched = true
     }
   }
 
@@ -44,22 +44,20 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
     val start = new GestureLogItem(x, y)
     val g = new GestureLog(start)
     gestures += (id -> g)
-    window.setTimeout(new Function0[Any] {
-      override def apply(): Any = {
-        debug(f"callback of a timer to check whether or not LongTap; id: $id")
-        if (g.end.isDefined) {
-          debug("gesture already finished")
+    window.setTimeout(() => {
+      debug(f"callback of a timer to check whether or not LongTap; id: $id")
+      if (g.end.isDefined) {
+        debug("gesture already finished")
+      } else {
+        checkLongTap(g)
+        if (g.tpe == LongTap) {
+          debug(f"LongTap")
+          touchEvent.longTapStart(id)
         } else {
-          checkLongTap(g)
-          if (g.tpe == LongTap) {
-            debug(f"LongTap")
-            touchEvent.longTapStart(id)
-          } else {
-            debug(f"not LongTap")
-          }
+          debug(f"not LongTap")
         }
       }
-    }, App.minLongTouchMillis)
+    }, app.minLongTouchMillis)
   }
   def move(id: Double, x: Double, y: Double): Unit = {
     //debug(f"move| id: $id, x: $x, y: $y")
@@ -91,9 +89,9 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
 
   def hasNoMoveEvents(g: GestureLog) = {
     g.moves.filter {
-        event => event.timestamp - g.start.timestamp < App.minLongTouchMillis
+        event => event.timestamp - g.start.timestamp < app.minLongTouchMillis
     } forall { event =>
-        math.max(math.abs(event.x - g.start.x), math.abs(event.y - g.start.y)) < App.minSwipeSize
+        math.max(math.abs(event.x - g.start.x), math.abs(event.y - g.start.y)) < app.minSwipeSize
     }
   }
   def checkLongTap(g: GestureLog): Unit = {
@@ -108,7 +106,7 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
   def getTapType(x: Double): GestureType = {
     val pos = x - window.pageXOffset
     val border = window.innerWidth / 2
-    val centerBorder = window.innerWidth * App.centerTapRatio / 2
+    val centerBorder = window.innerWidth * app.centerTapRatio / 2
     if (pos > border) {
       if (pos > border + centerBorder) RightTap
       else CenterTap
@@ -124,20 +122,20 @@ class Gesture(touchEvent: TouchEvent) extends Logger {
     val x = math.abs(dx)
     val y = math.abs(dy)
     if (x > y) {
-      if (x > App.minLongSwipeSize) {
+      if (x > app.minLongSwipeSize) {
         if (dx > 0) Some(LongSwipeLeft)
         else Some(LongSwipeRight)
-      } else if (x > App.minSwipeSize) {
+      } else if (x > app.minSwipeSize) {
         if (dx > 0) Some(SwipeLeft)
         else Some(SwipeRight)
       } else {
         None
       }
     } else {
-      if (y > App.minLongSwipeSize) {
+      if (y > app.minLongSwipeSize) {
         if (dy > 0) Some(LongSwipeUp)
         else Some(LongSwipeDown)
-      } else if (y > App.minSwipeSize) {
+      } else if (y > app.minSwipeSize) {
         if (dy > 0) Some(SwipeUp)
         else Some(SwipeDown)
       } else {

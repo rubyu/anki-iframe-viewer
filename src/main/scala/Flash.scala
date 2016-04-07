@@ -3,7 +3,7 @@ import scala.scalajs.js
 import org.scalajs.dom.{document, html, window}
 import org.scalajs.dom.window.screen
 
-class Flash extends Logger {
+class Flash(app: App) extends Logger {
   val container = document.createElement("div").asInstanceOf[html.Div]
   container.id = "flash-container"
   hide()
@@ -71,7 +71,7 @@ class Flash extends Logger {
           container.style.opacity = f"$alpha%.5f"
         }
       }
-    }, App.UIRefreshIntervalMillis)
+    }, app.UIRefreshIntervalMillis)
     timer = Some(id)
   }
 }

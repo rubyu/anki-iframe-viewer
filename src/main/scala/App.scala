@@ -9,75 +9,118 @@ import org.scalajs.dom.raw.HTMLUnknownElement
 
 @JSExport("AnkiIframeViewerApp")
 object App extends Logger {
-  val devices = mutable.HashMap.empty[String, Int]
-  val defaultFontSize: Double = 16
-  def baseFontSize: Int = {
-    debug(f"defaultFontSize: $defaultFontSize%.2f")
-    debug(f"devicePixelRatio: ${window.devicePixelRatio}%.2f")
-    def getAdjustedFontSize: Int = {
-      devices.find {
-        case (k, v) => window.navigator.userAgent.contains(k)
-      } match {
-        case Some((k, v)) =>
-          debug(f"$k found; fontSize: $v")
-          v
-        case None =>
-          debug(f"no preferred device found")
-          (defaultFontSize - window.devicePixelRatio).toInt match {
-            case n if n % 2 == 0 =>
-              n
-            case n =>
-              debug(f"round up: $n -> ${ n+1 }")
-              n+1
-          }
-      }
-    }
-    val fontSize = getAdjustedFontSize
-    info(f"baseFontSize: $fontSize")
-    fontSize
+  // User settings.
+  private var userMinLongSwipeSize                    : Option[Double] = None
+  private var userMinSwipeSize                        : Option[Double] = None
+  private var userMinLongTouchMillis                  : Option[Double] = None
+  private var userMaxGestureMillis                    : Option[Double] = None
+  private var userDispatcherDuplicateEventWindowMillis: Option[Double] = None
+  private var userTapCenterRatio                      : Option[Double] = None
+  private var userAutoLoadAudio                       : Option[Boolean] = None
+  private var userAutoPlayAudio                       : Option[Boolean] = None
+  private var userRepeatAudio                         : Option[Boolean] = None
+  private var userAudioQueryString                    : Option[String] = None
+  private var userChapterQueryStrings = mutable.ArrayBuffer.empty[(String, String)]
+
+  @JSExport def MinLongSwipeSize(d: Double)                      = { userMinLongSwipeSize = Option(d); this }
+  @JSExport def MinSwipeSize(d: Double)                          = { userMinSwipeSize = Option(d); this }
+  @JSExport def MinLongTouchMillis(d: Double)                    = { userMinLongTouchMillis = Option(d); this }
+  @JSExport def MaxGestureMillis(d: Double)                      = { userMaxGestureMillis = Option(d); this }
+  @JSExport def DispatcherDuplicateEventWindowMillis(d: Double)  = { userDispatcherDuplicateEventWindowMillis = Option(d); this }
+  @JSExport def TapCenterRatio(d: Double)                        = { userTapCenterRatio = Option(d); this }
+  @JSExport def AutoLoadAudio(b: Boolean)                        = { userAutoLoadAudio = Option(b); this }
+  @JSExport def AutoPlayAudio(b: Boolean)                        = { userAutoPlayAudio = Option(b); this }
+  @JSExport def RepeatAudio(b: Boolean)                          = { userRepeatAudio = Option(b); this }
+  @JSExport def audio(query: String)                             = { userAudioQueryString = Option(query); this }
+  @JSExport def chapter(query: String, caption: String)          = { userChapterQueryStrings += ((query, caption)); this }
+
+  private def reset(): Unit = {
+    userMinLongSwipeSize                     = None
+    userMinSwipeSize                         = None
+    userMinLongTouchMillis                   = None
+    userMaxGestureMillis                     = None
+    userDispatcherDuplicateEventWindowMillis = None
+    userTapCenterRatio                       = None
+    userAutoLoadAudio                        = None
+    userAutoPlayAudio                        = None
+    userRepeatAudio                          = None
+    userAudioQueryString                     = None
+    userChapterQueryStrings = mutable.ArrayBuffer.empty[(String, String)]
   }
 
-  def setBaseFontSize(): Unit = {
-    val h = document.getElementsByTagName("html")(0).asInstanceOf[html.Html]
-    debug(f"set html.style.fontSize = $baseFontSize")
-    h.style.fontSize = baseFontSize.toString
+  @JSExport
+  def run(): Unit = {
+    info("start")
+    val app = new App(
+      userMinLongSwipeSize,
+      userMinSwipeSize,
+      userMinLongTouchMillis,
+      userMaxGestureMillis,
+      userDispatcherDuplicateEventWindowMillis,
+      userTapCenterRatio,
+      userAutoLoadAudio,
+      userAutoPlayAudio,
+      userRepeatAudio,
+      userAudioQueryString,
+      userChapterQueryStrings.toList
+    )
+    app.dump()
+    window.addEventListener("DOMContentLoaded", app.DOMContentLoadedHandler)
+    window.addEventListener("load", app.loadHandler)
+    reset()
   }
+}
 
-  def fallback(): Unit = {
-    val h = document.getElementsByTagName("html")(0).asInstanceOf[html.Html]
-    val b = document.getElementsByTagName("body")(0).asInstanceOf[html.Body]
-    debug(f"fallback to standard style")
-    h.style.overflowY = "auto"
-    b.style.overflowY = "auto"
-  }
+class App(
+  userMinLongSwipeSize                    : Option[Double],
+  userMinSwipeSize                        : Option[Double],
+  userMinLongTouchMillis                  : Option[Double],
+  userMaxGestureMillis                    : Option[Double],
+  userDispatcherDuplicateEventWindowMillis: Option[Double],
+  userTapCenterRatio                      : Option[Double],
+  userAutoLoadAudio                       : Option[Boolean],
+  userAutoPlayAudio                       : Option[Boolean],
+  userRepeatAudio                         : Option[Boolean],
+  audioQueryString: Option[String],
+  chapterQueryStrings: List[(String, String)]
+) extends Logger {
 
+  // System settings.
   val UIRefreshIntervalMillis = 10 //ms
+
+  // User editable settings.
+  val minSwipeSize                        : Double = userMinSwipeSize.getOrElse(20)
+  val minLongSwipeSize                    : Double = userMinLongSwipeSize.getOrElse(math.min(window.innerHeight, window.innerWidth) * 0.5)
+  val minLongTouchMillis                  : Double = userMinLongTouchMillis.getOrElse(1000)
+  val maxGestureMillis                    : Double = userMaxGestureMillis.getOrElse(3000) //ms
+  val dispatcherDuplicateEventWindowMillis: Double = userDispatcherDuplicateEventWindowMillis.getOrElse(1500)
+  val centerTapRatio                      : Double = userTapCenterRatio.getOrElse(0.20)
+  val autoLoadAudio                       : Boolean = userAutoLoadAudio.getOrElse(true)
+  val autoPlayAudio                       : Boolean = userAutoPlayAudio.getOrElse(true)
+  val autoRepeatAudio                     : Boolean = userRepeatAudio.getOrElse(true)
+
+  // System *variable* flags.
   // whether app already touched or not
   var alreadyTouched = false
-  lazy val minSwipeSize = baseFontSize * 2 //ms
-  val centerTapRatio = 0.20
-  lazy val minLongSwipeSize = math.min(window.innerHeight, window.innerWidth) * 0.5 //px
-  val minLongTouchMillis = 1000 //ms
-  val maxGestureMillis = 3000 //ms
-  val dispatcherDuplicateEventWindowMillis = 1500 //ms
 
   @elidable(elidable.FINE)
   def dump(): Unit = {
-    devices.zipWithIndex.foreach {
-      case ((k, v), i) => debug(f"device setting[$i] $k -> $v")
-    }
+    debug(f"System settings.")
     debug(f"UIRefreshIntervalMillis: $UIRefreshIntervalMillis")
-    debug(f"alreadyTouched: $alreadyTouched")
+    debug(f"User editable settings.")
     debug(f"minSwipeSize: $minSwipeSize")
-    debug(f"centerTapRatio: $centerTapRatio")
     debug(f"minLongSwipeSize: $minLongSwipeSize")
     debug(f"minLongTouchMillis: $minLongTouchMillis")
     debug(f"maxGestureMillis: $maxGestureMillis")
     debug(f"dispatcherDuplicateEventWindowMillis: $dispatcherDuplicateEventWindowMillis")
+    debug(f"centerTapRatio: $centerTapRatio")
+    debug(f"System flags.")
+    debug(f"alreadyTouched: $alreadyTouched")
+    debug(f"User variables.")
+    debug(f"audioQueryString: $audioQueryString")
+    debug(f"chapterQueryStrings: $chapterQueryStrings")
   }
 
-  var audioQuery: Option[String] = None
-  var chapterQueries = mutable.ArrayBuffer.empty[(String, String)]
   var flash: Flash = null
   var audioPlayer: AudioPlayer = null
   var viewer: Viewer = null
@@ -86,117 +129,98 @@ object App extends Logger {
   var touchDispatcher: Dispatcher = null
   var mouseDispatcher: Dispatcher = null
 
-  @JSExport
-  def device(name: String, fontSize: Int) = {
-    devices += (name -> fontSize)
-    this
+  def mouseWheelHandler = (event: dom.WheelEvent) => {
+    event.deltaY match {
+      case y if y < 0 => mouseEvent.wheelUp()
+      case y if y > 0 => mouseEvent.wheelDown()
+    }
+    event.preventDefault()
   }
 
-  @JSExport
-  def audio(query: String) = {
-    audioQuery = Option(query)
-    this
+  def mouseDownHandler = (event: dom.MouseEvent) => {
+    debug(f"mousedown: $event")
+    mouseDispatcher.dispatchStart(0, event.pageX, event.pageY)
+    event.preventDefault()
   }
 
-  @JSExport
-  def chapter(query: String, caption: String) = {
-    chapterQueries += ((query, caption))
-    this
+  def mouseMoveHandler = (event: dom.MouseEvent) => {
+    //debug(f"mousemove: $event")
+    mouseDispatcher.dispatchMove(0, event.pageX, event.pageY)
+    event.preventDefault()
   }
 
-  @JSExport
-  def run(): Unit = {
-    info("start")
-    dump()
-    setBaseFontSize()
-    window.addEventListener("DOMContentLoaded", DOMContentLoadedHandler)
-    window.addEventListener("load", loadHandler)
+  def mouseUpHandler = (event: dom.MouseEvent) => {
+    debug(f"mouseup: $event")
+    mouseDispatcher.dispatchEnd(0, event.pageX, event.pageY)
+    event.preventDefault()
   }
 
-  def DOMContentLoadedHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
+  def touchStartHandler = (event: dom.TouchEvent) => {
+    for (i <- 0 until event.changedTouches.length) {
+      val touch = event.changedTouches(i)
+      debug(f"touchstart: $touch")
+      touchDispatcher.dispatchStart(touch.identifier, touch.pageX, touch.pageY)
+    }
+    event.preventDefault()
+  }
+
+  def touchMoveHandler = (event: dom.TouchEvent) => {
+    for (i <- 0 until event.changedTouches.length) {
+      val touch = event.changedTouches(i)
+      //debug(f"touchmove: $touch")
+      touchDispatcher.dispatchMove(touch.identifier, touch.pageX, touch.pageY)
+    }
+    event.preventDefault()
+  }
+
+  def touchEndHandler = (event: dom.TouchEvent) => {
+    for (i <- 0 until event.changedTouches.length) {
+      val touch = event.changedTouches(i)
+      debug(f"touchend: $touch")
+      touchDispatcher.dispatchEnd(touch.identifier, touch.pageX, touch.pageY)
+    }
+    event.preventDefault()
+  }
+
+  def DOMContentLoadedHandler = (e: dom.Event) => {
     if (!Viewer.canRun) {
-      fallback()
       fatal("AnkiIframeViewer cannot work on old browsers :(")
     } else {
-      val audio = audioQuery match {
+      val audio = audioQueryString match {
         case Some(query) => Option(document.querySelector(query))
         case None => None
       }
-      debug(f"audioQuery: $audioQuery, audio: $audio")
+      debug(f"audioQuery: $audioQueryString, audio: $audio")
 
-      val chapters = chapterQueries.map {
+      val chapters = chapterQueryStrings.map {
         case (query, caption) => Option(document.querySelector(query)) match {
-            case Some(elem) => new Chapter(elem.asInstanceOf[HTMLUnknownElement], caption)
-            case None => null
-          }
+          case Some(elem) => new Chapter(elem.asInstanceOf[HTMLUnknownElement], caption)
+          case None => null
+        }
       } .filter { chapter => Option(chapter).isDefined } .toList
-      debug(f"chapterQueries: $chapterQueries, chapters: $chapters")
+      debug(f"chapterQueries: $chapterQueryStrings, chapters: $chapters")
 
-      flash = new Flash()
+      flash = new Flash(this)
       if (audio.isDefined) {
         audioPlayer = new AudioPlayer(audio.get.asInstanceOf[html.Audio])
       }
       viewer = new Viewer(flash, chapters)
       mouseEvent = new MouseWheelEvent(viewer)
       touchEvent = new TouchEvent(viewer, Option(audioPlayer))
-      touchDispatcher = new Dispatcher(touchEvent)
-      mouseDispatcher = new Dispatcher(touchEvent, Option(touchDispatcher))
+      touchDispatcher = new Dispatcher(this, touchEvent)
+      mouseDispatcher = new Dispatcher(this, touchEvent, Option(touchDispatcher))
 
-      document.addEventListener("mousewheel", (event: dom.WheelEvent) => {
-        event.deltaY match {
-          case y if y < 0 => mouseEvent.wheelUp()
-          case y if y > 0 => mouseEvent.wheelDown()
-        }
-        event.preventDefault()
-      })
-
-      document.addEventListener("mousedown", (event: dom.MouseEvent) => {
-        debug(f"mousedown: $event")
-        mouseDispatcher.dispatchStart(0, event.pageX, event.pageY)
-        event.preventDefault()
-      })
-      document.addEventListener("mousemove", (event: dom.MouseEvent) => {
-        //debug(f"mousemove: $event")
-        mouseDispatcher.dispatchMove(0, event.pageX, event.pageY)
-        event.preventDefault()
-      })
-      document.addEventListener("mouseup", (event: dom.MouseEvent) => {
-        debug(f"mouseup: $event")
-        mouseDispatcher.dispatchEnd(0, event.pageX, event.pageY)
-        event.preventDefault()
-      })
-
-      document.addEventListener("touchstart", (event: dom.TouchEvent) => {
-        for (i <- 0 until event.changedTouches.length) {
-          val touch = event.changedTouches(i)
-          debug(f"touchstart: $touch")
-          touchDispatcher.dispatchStart(touch.identifier, touch.pageX, touch.pageY)
-        }
-        event.preventDefault()
-      })
-
-      //todo touchcancel
-
-      document.addEventListener("touchmove", (event: dom.TouchEvent) => {
-        for (i <- 0 until event.changedTouches.length) {
-          val touch = event.changedTouches(i)
-          //debug(f"touchmove: $touch")
-          touchDispatcher.dispatchMove(touch.identifier, touch.pageX, touch.pageY)
-        }
-        event.preventDefault()
-      })
-      document.addEventListener("touchend", (event: dom.TouchEvent) => {
-        for (i <- 0 until event.changedTouches.length) {
-          val touch = event.changedTouches(i)
-          debug(f"touchend: $touch")
-          touchDispatcher.dispatchEnd(touch.identifier, touch.pageX, touch.pageY)
-        }
-        event.preventDefault()
-      })
+      document.addEventListener("mousewheel", mouseWheelHandler)
+      document.addEventListener("mousedown", mouseDownHandler)
+      document.addEventListener("mousemove", mouseMoveHandler)
+      document.addEventListener("mouseup",   mouseUpHandler)
+      document.addEventListener("touchstart", touchStartHandler)
+      document.addEventListener("touchmove",  touchMoveHandler)
+      document.addEventListener("touchend",   touchEndHandler)
     }
   }
 
-  def loadHandler: js.Function1[dom.Event, Any] = (e: dom.Event) => {
+  def loadHandler = (e: dom.Event) => {
     if (Viewer.canRun) {
       viewer.goFirstChapter()
     }

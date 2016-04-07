@@ -1,7 +1,7 @@
 import scala.scalajs.js
 
-class Dispatcher(touchEvent: TouchEvent, preferredDispatcher: Option[Dispatcher] = None) extends Logger {
-  val gesture = new Gesture(touchEvent)
+class Dispatcher(app: App, touchEvent: TouchEvent, preferredDispatcher: Option[Dispatcher] = None) extends Logger {
+  val gesture = new Gesture(app, touchEvent)
 
   var lastDispatchTime = js.Date.now()
 
@@ -10,7 +10,7 @@ class Dispatcher(touchEvent: TouchEvent, preferredDispatcher: Option[Dispatcher]
   def dispatchEnd(id: Double, x: Double, y: Double): Unit = {
     lastDispatchTime = js.Date.now()
     if (preferredDispatcher.isDefined &&
-        lastDispatchTime - preferredDispatcher.get.lastDispatchTime < App.dispatcherDuplicateEventWindowMillis) {
+        lastDispatchTime - preferredDispatcher.get.lastDispatchTime < app.dispatcherDuplicateEventWindowMillis) {
       debug(f"duplicate event: $id")
       return
     }
