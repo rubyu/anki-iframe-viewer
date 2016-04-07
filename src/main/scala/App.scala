@@ -97,7 +97,7 @@ class App(
   val centerTapRatio                      : Double = userTapCenterRatio.getOrElse(0.20)
   val autoLoadAudio                       : Boolean = userAutoLoadAudio.getOrElse(true)
   val autoPlayAudio                       : Boolean = userAutoPlayAudio.getOrElse(true)
-  val autoRepeatAudio                     : Boolean = userRepeatAudio.getOrElse(true)
+  val repeatAudio                         : Boolean = userRepeatAudio.getOrElse(true)
 
   // System *variable* flags.
   // whether app already touched or not
@@ -202,13 +202,16 @@ class App(
 
       flash = new Flash(this)
       if (audio.isDefined) {
-        audioPlayer = new AudioPlayer(audio.get.asInstanceOf[html.Audio])
+        audioPlayer = new AudioPlayer(this, audio.get.asInstanceOf[html.Audio])
       }
       viewer = new Viewer(this, chapters)
       mouseEvent = new MouseWheelEvent(this)
       touchEvent = new TouchEvent(this, Option(audioPlayer))
       touchDispatcher = new Dispatcher(this)
       mouseDispatcher = new Dispatcher(this, Option(touchDispatcher))
+
+      // Test events requiring user action to fire with non-user action.
+      touchEvent.firstTouch()
 
       document.addEventListener("mousewheel", mouseWheelHandler)
       document.addEventListener("mousedown", mouseDownHandler)
