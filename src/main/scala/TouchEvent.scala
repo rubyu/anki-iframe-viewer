@@ -13,5 +13,5 @@ class TouchEvent(app: App, audioPlayer: Option[AudioPlayer] = None) extends Logg
   def rightTap(): Unit = app.viewer.goNextPage()
   def longTapStart(id: Double): Unit = if (audioPlayer.isDefined) audioPlayer.get.contract(id)
   def longTapEnd(id: Double): Unit = if (audioPlayer.isDefined) audioPlayer.get.cancel(id)
-  def firstTouch(): Unit = if (audioPlayer.isDefined && app.autoLoadAudio) audioPlayer.get.load()
+  def firstTouch(): Unit = if (audioPlayer.isDefined && app.touchAutoPlayAudio) audioPlayer.get.play()
 }

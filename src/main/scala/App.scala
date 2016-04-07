@@ -16,21 +16,21 @@ object App extends Logger {
   private var userMaxGestureMillis                    : Option[Double] = None
   private var userDispatcherDuplicateEventWindowMillis: Option[Double] = None
   private var userTapCenterRatio                      : Option[Double] = None
-  private var userAutoLoadAudio                       : Option[Boolean] = None
   private var userAutoPlayAudio                       : Option[Boolean] = None
+  private var userTouchAutoPlayAudio                  : Option[Boolean] = None
   private var userRepeatAudio                         : Option[Boolean] = None
   private var userAudioQueryString                    : Option[String] = None
   private var userChapterQueryStrings = mutable.ArrayBuffer.empty[(String, String)]
 
-  @JSExport def MinLongSwipeSize(d: Double)                      = { userMinLongSwipeSize = Option(d); this }
-  @JSExport def MinSwipeSize(d: Double)                          = { userMinSwipeSize = Option(d); this }
-  @JSExport def MinLongTouchMillis(d: Double)                    = { userMinLongTouchMillis = Option(d); this }
-  @JSExport def MaxGestureMillis(d: Double)                      = { userMaxGestureMillis = Option(d); this }
-  @JSExport def DispatcherDuplicateEventWindowMillis(d: Double)  = { userDispatcherDuplicateEventWindowMillis = Option(d); this }
-  @JSExport def TapCenterRatio(d: Double)                        = { userTapCenterRatio = Option(d); this }
-  @JSExport def AutoLoadAudio(b: Boolean)                        = { userAutoLoadAudio = Option(b); this }
-  @JSExport def AutoPlayAudio(b: Boolean)                        = { userAutoPlayAudio = Option(b); this }
-  @JSExport def RepeatAudio(b: Boolean)                          = { userRepeatAudio = Option(b); this }
+  @JSExport def minLongSwipeSize(d: Double)                      = { userMinLongSwipeSize = Option(d); this }
+  @JSExport def minSwipeSize(d: Double)                          = { userMinSwipeSize = Option(d); this }
+  @JSExport def minLongTouchMillis(d: Double)                    = { userMinLongTouchMillis = Option(d); this }
+  @JSExport def maxGestureMillis(d: Double)                      = { userMaxGestureMillis = Option(d); this }
+  @JSExport def dispatcherDuplicateEventWindowMillis(d: Double)  = { userDispatcherDuplicateEventWindowMillis = Option(d); this }
+  @JSExport def tapCenterRatio(d: Double)                        = { userTapCenterRatio = Option(d); this }
+  @JSExport def autoPlayAudio(b: Boolean)                        = { userAutoPlayAudio = Option(b); this }
+  @JSExport def touchAutoPlayAudio(b: Boolean)                   = { userTouchAutoPlayAudio = Option(b); this }
+  @JSExport def repeatAudio(b: Boolean)                          = { userRepeatAudio = Option(b); this }
   @JSExport def audio(query: String)                             = { userAudioQueryString = Option(query); this }
   @JSExport def chapter(query: String, caption: String)          = { userChapterQueryStrings += ((query, caption)); this }
 
@@ -41,8 +41,8 @@ object App extends Logger {
     userMaxGestureMillis                     = None
     userDispatcherDuplicateEventWindowMillis = None
     userTapCenterRatio                       = None
-    userAutoLoadAudio                        = None
     userAutoPlayAudio                        = None
+    userTouchAutoPlayAudio                   = None
     userRepeatAudio                          = None
     userAudioQueryString                     = None
     userChapterQueryStrings = mutable.ArrayBuffer.empty[(String, String)]
@@ -58,8 +58,8 @@ object App extends Logger {
       userMaxGestureMillis,
       userDispatcherDuplicateEventWindowMillis,
       userTapCenterRatio,
-      userAutoLoadAudio,
       userAutoPlayAudio,
+      userTouchAutoPlayAudio,
       userRepeatAudio,
       userAudioQueryString,
       userChapterQueryStrings.toList
@@ -78,8 +78,8 @@ class App(
   userMaxGestureMillis                    : Option[Double],
   userDispatcherDuplicateEventWindowMillis: Option[Double],
   userTapCenterRatio                      : Option[Double],
-  userAutoLoadAudio                       : Option[Boolean],
   userAutoPlayAudio                       : Option[Boolean],
+  userTouchAutoPlayAudio                  : Option[Boolean],
   userRepeatAudio                         : Option[Boolean],
   audioQueryString: Option[String],
   chapterQueryStrings: List[(String, String)]
@@ -87,6 +87,7 @@ class App(
 
   // System settings.
   val UIRefreshIntervalMillis = 10 //ms
+  val forcePlayAudioIntervalMillis = 10 //ms
 
   // User editable settings.
   val minSwipeSize                        : Double = userMinSwipeSize.getOrElse(20)
@@ -95,8 +96,8 @@ class App(
   val maxGestureMillis                    : Double = userMaxGestureMillis.getOrElse(2000) //ms
   val dispatcherDuplicateEventWindowMillis: Double = userDispatcherDuplicateEventWindowMillis.getOrElse(1500)
   val centerTapRatio                      : Double = userTapCenterRatio.getOrElse(0.20)
-  val autoLoadAudio                       : Boolean = userAutoLoadAudio.getOrElse(true)
-  val autoPlayAudio                       : Boolean = userAutoPlayAudio.getOrElse(true)
+  val autoPlayAudio                       : Boolean = userAutoPlayAudio.getOrElse(false)
+  val touchAutoPlayAudio                  : Boolean = userTouchAutoPlayAudio.getOrElse(true)
   val repeatAudio                         : Boolean = userRepeatAudio.getOrElse(true)
 
   // System *variable* flags.
@@ -210,8 +211,9 @@ class App(
       touchDispatcher = new Dispatcher(this)
       mouseDispatcher = new Dispatcher(this, Option(touchDispatcher))
 
-      // Test events requiring user action to fire with non-user action.
-      touchEvent.firstTouch()
+      if (autoPlayAudio && audioPlayer != null) {
+        audioPlayer.play()
+      }
 
       document.addEventListener("mousewheel", mouseWheelHandler)
       document.addEventListener("mousedown", mouseDownHandler)
