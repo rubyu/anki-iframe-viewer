@@ -29,12 +29,7 @@ class GestureLog(val start: GestureLogItem) {
 class Gesture(app: App) extends Logger {
   val gestures = mutable.HashMap.empty[Double, GestureLog]
 
-  def tryFirstTouch(): Unit = {
-    if (!app.alreadyTouched) {
-      app.touchEvent.firstTouch()
-      app.alreadyTouched = true
-    }
-  }
+  def tryFirstTouch(): Boolean = app.touchEvent.firstTouch()
 
   def longTapCallback(id: Double, g: GestureLog) = () => {
     debug(f"callback of a timer to check whether or not LongTap; id: $id")
@@ -65,7 +60,10 @@ class Gesture(app: App) extends Logger {
 
   def start(id: Double, x: Double, y: Double): Unit = {
     debug(f"start| id: $id, x: $x, y: $y")
-    tryFirstTouch()
+    if (tryFirstTouch()) {
+      debug(f"first touch")
+      return
+    }
     app.touchEvent.longTapEnd(id)
     val start = new GestureLogItem(x, y)
     val g = new GestureLog(start)
@@ -75,7 +73,10 @@ class Gesture(app: App) extends Logger {
   }
   def move(id: Double, x: Double, y: Double): Unit = {
     //debug(f"move| id: $id, x: $x, y: $y")
-    tryFirstTouch()
+    if (tryFirstTouch()) {
+      debug(f"first touch")
+      return
+    }
     if (!has(id)) {
       debug(f"the GestureLog corresponding to id($id) was not found")
       return
