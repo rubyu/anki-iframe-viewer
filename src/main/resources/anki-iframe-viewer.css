@@ -19,7 +19,7 @@ body {
   font-family: _myfont00, _myfont01, _myfont02, _myfont03, sans-serif, serif;
   text-align: left;
   -webkit-text-size-adjust: 100%;
-  line-height: 1.7rem;
+  line-height: 1.4rem;
   color: black;
   background-color: white;
 }
@@ -61,37 +61,43 @@ body {
 }
 
 #detached-00 {
-  margin-left: 1rem;
   display: inline;
-  font-size: 1.5rem;
+  margin-left: 1rem;
+  font-size: 1.3rem;
+  line-height: 1.1rem;
 }
 #detached-01 {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  font-size: 1.5rem;
+  display: none;
 }
 #detached-02 {
-  margin-top: 0.5rem;
+  display: inline;
 }
 #detached-02 table {
+  display: inline-box;
+  float: right;
   margin-left: auto;
-  margin-right: auto;
+  margin-right: 1rem;
+  padding-left: 0.2rem;
+  max-width: 60vw;
+}
+#detached-02 table * {
+  font-weight: normal;
+  font-size: 0.8rem;
+  line-height: 1.1rem;
 }
 #detached-02 td {
   margin: 2rem 0 2rem 0;
   text-align: center;
-  min-width: 20vw;
+  min-width: 12vw;
 }
 #detached-02 thead tr {
-  background-color: #f0f0f0;
+  background-color: #f2f2f2;
 }
 #detached-02 tbody td {
   border-bottom: 1px solid #eaeaea;
 }
 #detached-03 {
-  margin: 0.5rem;
-  text-align: center;
+  display: none;
 }
 #detached-04,
 #detached-05,
@@ -99,22 +105,34 @@ body {
 #detached-07,
 #detached-08 {
   padding-top: 0.5rem;
-  border-top: 1px solid #e0e0e0;
+  padding-bottom: 0.5rem;
 }
 #detached-04::before {
+  display: inline-block;
   content: "【ランダムハウス英語辞典】";
 }
 #detached-05::before {
+  display: inline-block;
   content: "【研究社 新英和中辞典】";
 }
 #detached-06::before {
+  display: inline-block;
   content: "【研究社 新英和大辞典】";
 }
 #detached-07::before {
+  display: inline-block;
   content: "【斎藤和英大辞典】";
 }
 #detached-08::before {
+  display: inline-block;
   content: "【ロングマン現代英英辞典】";
+}
+
+#detached-05,
+#detached-06,
+#detached-07,
+#detached-08 {
+  box-shadow: 0 10px 6px -6px #f0f0f0 inset;
 }
 
 .ebquery {
@@ -133,7 +151,6 @@ body {
   height: 1.1rem;
   padding-bottom: 0.25rem;
 }
-
 .ebkw,
 .pos,
 .sense1,
@@ -142,6 +159,7 @@ body {
 .LDOCE5 .sup {
   padding-left: 0.2rem;
   padding-right: 0.2rem;
+  line-height: 1.65rem;
 }
 .SRD      .sense1 {
  padding-left: 0.6rem;
