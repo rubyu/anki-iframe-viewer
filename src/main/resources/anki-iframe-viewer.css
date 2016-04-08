@@ -64,7 +64,7 @@ body {
   display: inline;
   margin-left: 1rem;
   font-size: 1.3rem;
-  line-height: 1.1rem;
+  line-height: 2rem;
 }
 #detached-01 {
   display: none;
@@ -128,11 +128,12 @@ body {
   content: "【ロングマン現代英英辞典】";
 }
 
+#detached-04,
 #detached-05,
 #detached-06,
 #detached-07,
 #detached-08 {
-  box-shadow: 0 10px 6px -6px #f0f0f0 inset;
+  box-shadow: 0 -5rem 1rem -5rem #e6e6e6 inset;
 }
 
 .ebquery {
