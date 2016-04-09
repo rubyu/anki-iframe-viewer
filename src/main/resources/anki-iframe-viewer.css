@@ -67,12 +67,9 @@ body {
   line-height: 2rem;
 }
 #detached-01 {
-  display: none;
-}
-#detached-02 {
   display: inline;
 }
-#detached-02 table {
+#detached-01 table {
   display: inline-box;
   float: right;
   margin-left: auto;
@@ -80,59 +77,82 @@ body {
   padding-left: 0.2rem;
   max-width: 60vw;
 }
-#detached-02 table * {
+#detached-01 table * {
   font-weight: normal;
   font-size: 0.8rem;
   line-height: 1.1rem;
 }
-#detached-02 td {
+#detached-01 td {
   margin: 2rem 0 2rem 0;
   text-align: center;
   min-width: 12vw;
 }
-#detached-02 thead tr {
+#detached-01 thead tr {
   background-color: #f2f2f2;
 }
-#detached-02 tbody td {
+#detached-01 tbody td {
   border-bottom: 1px solid #eaeaea;
 }
-#detached-03 {
+#detached-02 {
   display: none;
 }
+#detached-03,
 #detached-04,
 #detached-05,
 #detached-06,
 #detached-07,
-#detached-08 {
+#detached-08,
+#detached-09,
+#detached-10,
+#detached-11 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
-#detached-04::before {
+#detached-03::before {
   display: inline-block;
   content: "【ランダムハウス英語辞典】";
 }
-#detached-05::before {
-  display: inline-block;
-  content: "【研究社 新英和中辞典】";
-}
-#detached-06::before {
+#detached-04::before {
   display: inline-block;
   content: "【研究社 新英和大辞典】";
 }
+#detached-05::before {
+  display: inline-block;
+  content: "【リーダーズ・プラス】";
+}
+#detached-06::before {
+  display: inline-block;
+  content: "【ジーニアス英和大辞典】";
+}
 #detached-07::before {
   display: inline-block;
-  content: "【斎藤和英大辞典】";
+  content: "【英辞郎】";
 }
-#detached-08::before {
+#detached-08::before  {
   display: inline-block;
   content: "【ロングマン現代英英辞典】";
 }
-
+#detached-09::before {
+  display: inline-block;
+  content: "【オックスフォード現代英英辞典】";
+}
+#detached-10::before {
+  display: inline-block;
+  content: "【斎藤和英大辞典】";
+}
+#detached-11::before,  {
+  display: inline-block;
+  content: "【ロングマン現代英英辞典】";
+}
+#detached-03,
 #detached-04,
 #detached-05,
 #detached-06,
 #detached-07,
-#detached-08 {
+#detached-08,
+#detached-09,
+#detached-10,
+#detached-11 {
   box-shadow: 0 -5rem 1rem -5rem #e6e6e6 inset;
 }
 
