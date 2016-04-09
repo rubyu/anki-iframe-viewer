@@ -1,4 +1,3 @@
-import org.scalajs.dom.window
 import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.collection.mutable
@@ -7,21 +6,10 @@ class AudioPlayer(app: App, audio: html.Audio) extends Logger {
   private val listeners = mutable.HashSet.empty[Double]
   private var prepared = false
   private var playing = false
-  private var played = false
-  var forcePlayTimer: Option[Int] = None
 
   private def playHandler = (event: dom.Event) => {
     debug(f"callback playHandler| listeners: $listeners")
     debug(f"duration: ${audio.duration}")
-    if (audio.duration > 0) {
-      playing = true
-      played = true
-      if (forcePlayTimer.isDefined) {
-        debug(f"clear force play timer(${forcePlayTimer.get})")
-        window.clearInterval(forcePlayTimer.get)
-        forcePlayTimer = None
-      }
-    }
   }
   private def loadedDataHandler = (event: dom.Event) => {
     debug(f"callback loadedDataHandler| listeners: $listeners")
@@ -50,31 +38,13 @@ class AudioPlayer(app: App, audio: html.Audio) extends Logger {
     debug(f"duration: ${audio.duration}")
     playing = false
     if (app.holdReplayAudio && listeners.nonEmpty) {
-      audio.muted = true
-      audio.pause()
-      audio.currentTime = 0
-      audio.muted = false
       _play()
     }
-  }
-
-  private def forcePlayHandler = () => {
-    debug(f"callback forcePlayHandler| listeners: $listeners")
-    audio.muted = true
-    audio.pause()
-    audio.currentTime = 0
-    audio.muted = false
-    _play()
   }
 
   def play(): Unit = {
     debug(f"play| listeners: $listeners")
     _play()
-    if (!played && forcePlayTimer.isEmpty) {
-      val id = window.setInterval(forcePlayHandler, app.forcePlayAudioIntervalMillis)
-      debug(f"set force play timer($id)")
-      forcePlayTimer = Some(id)
-    }
   }
   private def prepare(): Unit = {
     debug(f"prepare| listeners: $listeners")
