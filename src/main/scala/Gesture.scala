@@ -29,8 +29,6 @@ class GestureLog(val start: GestureLogItem) {
 class Gesture(app: App) extends Logger {
   val gestures = mutable.HashMap.empty[Double, GestureLog]
 
-  def tryFirstTouch(): Boolean = app.touchEvent.firstTouch()
-
   def longTapCallback(id: Double, g: GestureLog) = () => {
     debug(f"callback of a timer to check whether or not LongTap; id: $id")
     if (g.end.isDefined) {
@@ -60,10 +58,6 @@ class Gesture(app: App) extends Logger {
 
   def start(id: Double, x: Double, y: Double): Unit = {
     debug(f"start| id: $id, x: $x, y: $y")
-    if (tryFirstTouch()) {
-      debug(f"first touch")
-      return
-    }
     app.touchEvent.longTapEnd(id)
     val start = new GestureLogItem(x, y)
     val g = new GestureLog(start)
@@ -73,10 +67,6 @@ class Gesture(app: App) extends Logger {
   }
   def move(id: Double, x: Double, y: Double): Unit = {
     //debug(f"move| id: $id, x: $x, y: $y")
-    if (tryFirstTouch()) {
-      debug(f"first touch")
-      return
-    }
     if (!has(id)) {
       debug(f"the GestureLog corresponding to id($id) was not found")
       return
@@ -103,13 +93,21 @@ class Gesture(app: App) extends Logger {
   def has(id: Double) = gestures.contains(id)
   def get(id: Double) = gestures(id)
 
+  def withinMinLongTouchMillis(a: GestureLogItem, b: GestureLogItem) =
+    if (a.timestamp > b.timestamp) a.timestamp - b.timestamp < app.minLongTouchMillis
+    else                           b.timestamp - a.timestamp < app.minLongTouchMillis
+
+  def withinMinSwipeSize(a: GestureLogItem, b: GestureLogItem) =
+    math.max(math.abs(a.x - b.x), math.abs(a.y - b.y)) < app.minSwipeSize
+
   def hasNoMoveEvents(g: GestureLog) = {
-    g.moves.filter {
-        event => event.timestamp - g.start.timestamp < app.minLongTouchMillis
+    g.moves.filter { event =>
+      withinMinLongTouchMillis(event, g.start)
     } forall { event =>
-        math.max(math.abs(event.x - g.start.x), math.abs(event.y - g.start.y)) < app.minSwipeSize
+      withinMinSwipeSize(event, g.start)
     }
   }
+
   def checkLongTap(g: GestureLog): Unit = {
     if (hasNoMoveEvents(g)) {
       g.tpe = LongTap

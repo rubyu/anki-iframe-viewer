@@ -1,6 +1,5 @@
 import scala.annotation.elidable
 import scala.collection.mutable
-import scalajs.js
 import scalajs.js.annotation.JSExport
 import org.scalajs.dom
 import org.scalajs.dom.{document, window}
@@ -17,8 +16,7 @@ object App extends Logger {
   private var userDispatcherDuplicateEventWindowMillis: Option[Double] = None
   private var userTapCenterRatio                      : Option[Double] = None
   private var userAutoPlayAudio                       : Option[Boolean] = None
-  private var userTouchAutoPlayAudio                  : Option[Boolean] = None
-  private var userRepeatAudio                         : Option[Boolean] = None
+  private var userHoldReplayAudio                     : Option[Boolean] = None
   private var userAudioQueryString                    : Option[String] = None
   private var userChapterQueryStrings = mutable.ArrayBuffer.empty[(String, String)]
 
@@ -29,8 +27,7 @@ object App extends Logger {
   @JSExport def dispatcherDuplicateEventWindowMillis(d: Double)  = { userDispatcherDuplicateEventWindowMillis = Option(d); this }
   @JSExport def tapCenterRatio(d: Double)                        = { userTapCenterRatio = Option(d); this }
   @JSExport def autoPlayAudio(b: Boolean)                        = { userAutoPlayAudio = Option(b); this }
-  @JSExport def touchAutoPlayAudio(b: Boolean)                   = { userTouchAutoPlayAudio = Option(b); this }
-  @JSExport def repeatAudio(b: Boolean)                          = { userRepeatAudio = Option(b); this }
+  @JSExport def holdReplayAudio(b: Boolean)                      = { userHoldReplayAudio = Option(b); this }
   @JSExport def audio(query: String)                             = { userAudioQueryString = Option(query); this }
   @JSExport def chapter(query: String, caption: String)          = { userChapterQueryStrings += ((query, caption)); this }
 
@@ -42,8 +39,7 @@ object App extends Logger {
     userDispatcherDuplicateEventWindowMillis = None
     userTapCenterRatio                       = None
     userAutoPlayAudio                        = None
-    userTouchAutoPlayAudio                   = None
-    userRepeatAudio                          = None
+    userHoldReplayAudio                      = None
     userAudioQueryString                     = None
     userChapterQueryStrings = mutable.ArrayBuffer.empty[(String, String)]
   }
@@ -59,8 +55,7 @@ object App extends Logger {
       userDispatcherDuplicateEventWindowMillis,
       userTapCenterRatio,
       userAutoPlayAudio,
-      userTouchAutoPlayAudio,
-      userRepeatAudio,
+      userHoldReplayAudio,
       userAudioQueryString,
       userChapterQueryStrings.toList
     )
@@ -79,8 +74,7 @@ class App(
   userDispatcherDuplicateEventWindowMillis: Option[Double],
   userTapCenterRatio                      : Option[Double],
   userAutoPlayAudio                       : Option[Boolean],
-  userTouchAutoPlayAudio                  : Option[Boolean],
-  userRepeatAudio                         : Option[Boolean],
+  userHoldReplayAudio                     : Option[Boolean],
   audioQueryString: Option[String],
   chapterQueryStrings: List[(String, String)]
 ) extends Logger {
@@ -92,17 +86,12 @@ class App(
   // User editable settings.
   val minSwipeSize                        : Double = userMinSwipeSize.getOrElse(20)
   val minLongSwipeSize                    : Double = userMinLongSwipeSize.getOrElse(math.min(window.innerHeight, window.innerWidth) * 0.5)
-  val minLongTouchMillis                  : Double = userMinLongTouchMillis.getOrElse(1000)
-  val maxGestureMillis                    : Double = userMaxGestureMillis.getOrElse(2000) //ms
+  val minLongTouchMillis                  : Double = userMinLongTouchMillis.getOrElse(700)
+  val maxGestureMillis                    : Double = userMaxGestureMillis.getOrElse(2000)
   val dispatcherDuplicateEventWindowMillis: Double = userDispatcherDuplicateEventWindowMillis.getOrElse(1500)
   val centerTapRatio                      : Double = userTapCenterRatio.getOrElse(0.20)
-  val autoPlayAudio                       : Boolean = userAutoPlayAudio.getOrElse(false)
-  val touchAutoPlayAudio                  : Boolean = userTouchAutoPlayAudio.getOrElse(true)
-  val repeatAudio                         : Boolean = userRepeatAudio.getOrElse(true)
-
-  // System *variable* flags.
-  // whether app already touched or not
-  var alreadyTouched = false
+  val autoPlayAudio                       : Boolean = userAutoPlayAudio.getOrElse(true)
+  val holdReplayAudio                     : Boolean = userHoldReplayAudio.getOrElse(true)
 
   @elidable(elidable.FINE)
   def dump(): Unit = {
@@ -115,8 +104,8 @@ class App(
     debug(f"maxGestureMillis: $maxGestureMillis")
     debug(f"dispatcherDuplicateEventWindowMillis: $dispatcherDuplicateEventWindowMillis")
     debug(f"centerTapRatio: $centerTapRatio")
-    debug(f"System flags.")
-    debug(f"alreadyTouched: $alreadyTouched")
+    debug(f"autoPlayAudio: $autoPlayAudio")
+    debug(f"holdReplayAudio: $holdReplayAudio")
     debug(f"User variables.")
     debug(f"audioQueryString: $audioQueryString")
     debug(f"chapterQueryStrings: $chapterQueryStrings")
@@ -198,7 +187,7 @@ class App(
           case Some(elem) => new Chapter(elem.asInstanceOf[HTMLUnknownElement], caption)
           case None => null
         }
-      } .filter { chapter => Option(chapter).isDefined } .toList
+      } .filter { chapter => Option(chapter).isDefined }
       debug(f"chapterQueries: $chapterQueryStrings, chapters: $chapters")
 
       flash = new Flash(this)

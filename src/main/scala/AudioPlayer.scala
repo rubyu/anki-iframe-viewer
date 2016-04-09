@@ -49,7 +49,7 @@ class AudioPlayer(app: App, audio: html.Audio) extends Logger {
     debug(f"callback endedHandler| listeners: $listeners")
     debug(f"duration: ${audio.duration}")
     playing = false
-    if (app.repeatAudio && listeners.nonEmpty) {
+    if (app.holdReplayAudio && listeners.nonEmpty) {
       audio.muted = true
       audio.pause()
       audio.currentTime = 0
