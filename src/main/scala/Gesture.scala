@@ -58,6 +58,7 @@ class Gesture(app: App) extends Logger {
 
   def start(id: Double, x: Double, y: Double): Unit = {
     debug(f"start| id: $id, x: $x, y: $y")
+    app.callWithUserTouchPrivilege()
     app.touchEvent.longTapEnd(id)
     val start = new GestureLogItem(x, y)
     val g = new GestureLog(start)

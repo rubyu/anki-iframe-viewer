@@ -77,7 +77,7 @@ class App(
   userHoldReplayAudio                     : Option[Boolean],
   audioQueryString: Option[String],
   chapterQueryStrings: List[(String, String)]
-) extends Logger {
+) extends NeedUserTouchPrivilege with Logger {
 
   // System settings.
   val UIRefreshIntervalMillis = 10 //ms
@@ -110,6 +110,14 @@ class App(
     debug(f"audioQueryString: $audioQueryString")
     debug(f"chapterQueryStrings: $chapterQueryStrings")
   }
+
+  private def needUserTouchPrivileges: List[Option[NeedUserTouchPrivilege]] =
+    List(Option(audioPlayer))
+
+  def callWithUserTouchPrivilege(): Unit =
+    needUserTouchPrivileges
+      .flatMap(x => x)
+      .foreach(_.callWithUserTouchPrivilege())
 
   var flash: Flash = null
   var audioPlayer: AudioPlayer = null
