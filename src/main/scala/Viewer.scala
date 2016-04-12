@@ -31,7 +31,7 @@ class Viewer(app: App, chapters: List[Chapter]) extends Logger {
   def setPosition(pos: Double, caption: Option[String]): Unit = {
     debug(f"set position: $pos")
     window.scrollTo(pos.toInt, 0)
-    app.flash.castPageState(caption)
+    app.flash.updateProgressBar()
   }
   def activeChapters: List[Chapter] = {
     val pos = ordinaryPosition(position)

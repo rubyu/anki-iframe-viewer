@@ -1,112 +1,65 @@
 
-import scala.scalajs.js
 import org.scalajs.dom.{document, html, window}
 
-class Flash(app: App) extends Logger {
+class Flash(app: App, audioPlayer: Option[AudioPlayer]) extends Logger {
   // container
-  private val container = document.createElement("div").asInstanceOf[html.Div]
-  container.id = "flash-container"
+  private val horizontalBar = document.createElement("div").asInstanceOf[html.Div]
+  horizontalBar.id = "horizontal-bar"
   hide()
-  document.body.appendChild(container)
-  // info
-  private val info = document.createElement("div").asInstanceOf[html.Div]
-  info.id = "flash-container-info"
-  private val infoText = document.createElement("div").asInstanceOf[html.Div]
-  infoText.id = "flash-container-info-text"
-  info.appendChild(infoText)
-  container.appendChild(info)
-  // page
-  private val pageState = document.createElement("div").asInstanceOf[html.Div]
-  pageState.id = "flash-container-page-state"
-  private val pageStateLeft = document.createElement("div").asInstanceOf[html.Div]
-  pageStateLeft.id = "flash-container-page-state-left"
-  private val pageStateRight = document.createElement("div").asInstanceOf[html.Div]
-  pageStateRight.id = "flash-container-page-state-right"
-  private val pageStateNumerator = document.createElement("div").asInstanceOf[html.Div]
-  pageStateNumerator.id = "flash-container-page-state-numerator"
-  private val pageStateDenominator = document.createElement("div").asInstanceOf[html.Div]
-  pageStateDenominator.id = "flash-container-page-state-denominator"
-  private val pageStateText = document.createElement("div").asInstanceOf[html.Div]
-  pageStateText.id = "flash-container-page-state-text"
-  pageStateLeft.appendChild(pageStateText)
-  pageStateRight.appendChild(pageStateNumerator)
-  pageStateRight.appendChild(pageStateDenominator)
-  pageState.appendChild(pageStateLeft)
-  pageState.appendChild(pageStateRight)
-  container.appendChild(pageState)
 
-  private var timer: Option[Int] = None
+  document.body.appendChild(horizontalBar)
+  // icon 1
+  private val icon1 = document.createElement("div").asInstanceOf[html.Div]
+  icon1.id = "horizontal-bar-icon1"
+  horizontalBar.appendChild(icon1)
+  // progress bar
+  private val progress = document.createElement("div").asInstanceOf[html.Div]
+  progress.id = "horizontal-bar-progress-bar"
+  private val total = document.createElement("div").asInstanceOf[html.Div]
+  total.id = "horizontal-bar-progress-total"
+  private val current = document.createElement("div").asInstanceOf[html.Div]
+  current.id = "horizontal-bar-progress-current"
 
-  private def clearTimer(): Unit = {
-    if (timer.isDefined) {
-      window.clearInterval(timer.get)
-      timer = None
+  progress.appendChild(total)
+  progress.appendChild(current)
+  horizontalBar.appendChild(progress)
+
+  setNormalMusicIcon()
+  updateProgressBar()
+  show()
+
+  def hide(): Unit = {
+    horizontalBar.style.visibility = "hidden"
+  }
+
+  def show(): Unit = {
+    horizontalBar.style.visibility = "visible"
+  }
+
+  private def defaultMusicIcon =
+    audioPlayer match {
+      case Some(_) => "&#x266b;"
+      case None =>    ""
     }
+
+  private def setNormalMusicIcon(): Unit = {
+    icon1.innerHTML = defaultMusicIcon
   }
 
-  private def init(): Unit = {
-    hide()
-    clearTimer()
-    info.style.display = "none"
-    pageState.style.display = "none"
+  private def currentProgressLengthInPercentile =
+    progress.offsetWidth * (window.innerWidth + window.pageXOffset) / document.body.scrollWidth
+
+  def updateProgressBar(): Unit = {
+    current.style.visibility = "hidden"
+    current.style.width = currentProgressLengthInPercentile.toString
+    current.style.visibility = "visible"
   }
 
-  private def informationInit(): Unit = {
-    init()
-    info.style.display = "block"
+  def musicStart(): Unit = {
+    icon1.innerHTML = "&#x1f50a;"
   }
 
-  private def pageStateInit(): Unit = {
-    init()
-    val page = math.floor(window.pageXOffset / window.innerWidth).toInt + 1
-    val pages = math.floor(document.body.scrollWidth / window.innerWidth).toInt
-    debug(f"page: $page, pages: $pages")
-    pageStateNumerator.innerHTML = page.toString
-    pageStateDenominator.innerHTML = pages.toString
-    pageState.style.display = "block"
-  }
-
-  private def hide(): Unit = {
-    container.style.visibility = "hidden"
-  }
-
-  private def show(): Unit = {
-    container.style.opacity = "1"
-    container.style.visibility = "visible"
-  }
-
-  private def fadeTimer(t1: Double) = () => {
-    val t2 = js.Date.now()
-    val delta = t2 - t1
-    //debug(f"timer published at: $t1; current: $t2")
-    if (delta < 500) {
-      // do nothing
-    } else if (delta < 10000) {
-      val alpha = 1 - math.pow((delta - 500) / 500, 2)
-      if (alpha < 0) {
-        clearTimer()
-        hide()
-      } else {
-        container.style.opacity = f"$alpha%.5f"
-      }
-    }
-  }
-
-  private def cast(): Unit = {
-    show()
-    val id = window.setInterval(fadeTimer(js.Date.now()), app.UIRefreshIntervalMillis)
-    timer = Some(id)
-  }
-
-  def castInformation(s: String): Unit = {
-    informationInit()
-    infoText.innerHTML = s
-    cast()
-  }
-
-  def castPageState(caption: Option[String]): Unit = {
-    pageStateInit()
-    pageStateText.innerHTML = caption.getOrElse("")
-    cast()
+  def musicEnd(): Unit = {
+    setNormalMusicIcon()
   }
 }

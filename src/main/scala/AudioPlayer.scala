@@ -35,8 +35,9 @@ class AudioPlayer(app: App, audio: html.Audio) extends NeedUserTouchPrivilege wi
   }
 
   private def playHandler = (event: dom.Event) => {
-    if (canPlay) {
+    if (canPlay && !playing) {
       playing = true
+      app.flash.musicStart()
     }
   }
 
@@ -45,9 +46,11 @@ class AudioPlayer(app: App, audio: html.Audio) extends NeedUserTouchPrivilege wi
   }
 
   private def endedHandler = (event: dom.Event) => {
-    playing = false
     if (app.holdReplayAudio && listeners.nonEmpty) {
       _play()
+    } else {
+      playing = false
+      app.flash.musicEnd()
     }
   }
 

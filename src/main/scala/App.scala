@@ -198,10 +198,10 @@ class App(
       } .filter { chapter => Option(chapter).isDefined }
       debug(f"chapterQueries: $chapterQueryStrings, chapters: $chapters")
 
-      flash = new Flash(this)
       if (audio.isDefined) {
         audioPlayer = new AudioPlayer(this, audio.get.asInstanceOf[html.Audio])
       }
+      flash = new Flash(this, Option(audioPlayer))
       viewer = new Viewer(this, chapters)
       mouseEvent = new MouseWheelEvent(this)
       touchEvent = new TouchEvent(this, Option(audioPlayer))

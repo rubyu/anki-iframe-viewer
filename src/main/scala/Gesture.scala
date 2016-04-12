@@ -51,7 +51,7 @@ class Gesture(app: App) extends Logger {
       if (g.tpe == ND) {
         debug(f"timeout")
         g.tpe = TimeOut
-        app.flash.castInformation("Gesture Timeout")
+        //app.flash.castInformation("Gesture Timeout")
       }
     }
   }

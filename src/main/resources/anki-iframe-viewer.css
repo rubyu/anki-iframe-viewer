@@ -30,34 +30,40 @@ body {
   -webkit-column-gap: 0;
 }
 
-#flash-container {
+#horizontal-bar {
   position: fixed;
-  right: 1rem;
-  bottom: 4rem;
-  padding: 0 0.5rem 0 0.5rem;
-  background-color: white;
-  box-shadow: 0 10px 15px rgba(0,0,0,.3);
-  text-align: right;
-  font-size: 0.8rem;
+  left: 0;
+  bottom: 0.05rem;
+  width: 100vw;
 }
-#flash-container-page-state-left {
-  display: inline-block;
+#horizontal-bar-icon1 {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.1rem;
+  height: 0.5rem;
+  width: 0.5rem;
+  text-align: center;
+  font-size: 0.5rem;
+  line-height: 0.5rem;
+  -webkit-filter: grayscale(100%) opacity(80%);
 }
-#flash-container-page-state-right {
-
+#horizontal-bar-progress-bar {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.35rem;
+  width: calc(100vw - 2rem);
 }
-#flash-container-page-state-numerator {
-  display: inline;
+#horizontal-bar-progress-total {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  border-bottom: 0.05rem solid #f0f0f0;
 }
-#flash-container-page-state-numerator::after {
-  margin: 0 0.3em 0 0.3em;
-  content: "/";
-}
-#flash-container-page-state-denominator {
-  display: inline;
-}
-#flash-container-page-state-text {
-  display: inline;
+#horizontal-bar-progress-current {
+  position: absolute;
+  top: 0;
+  width: 0;
+  border-bottom: 0.05rem solid #505050;
 }
 
 #detached-00 {
@@ -103,8 +109,7 @@ body {
 #detached-07,
 #detached-08,
 #detached-09,
-#detached-10,
-#detached-11 {
+#detached-10 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
@@ -122,25 +127,21 @@ body {
 }
 #detached-06::before {
   display: inline-block;
-  content: "【ジーニアス英和大辞典】";
-}
-#detached-07::before {
-  display: inline-block;
   content: "【英辞郎】";
 }
-#detached-08::before  {
+#detached-07::before  {
   display: inline-block;
   content: "【ロングマン現代英英辞典】";
 }
-#detached-09::before {
+#detached-08::before {
   display: inline-block;
   content: "【オックスフォード現代英英辞典】";
 }
-#detached-10::before {
+#detached-09::before {
   display: inline-block;
   content: "【斎藤和英大辞典】";
 }
-#detached-11::before,  {
+#detached-10::before,  {
   display: inline-block;
   content: "【ロングマン現代英英辞典】";
 }
@@ -151,8 +152,7 @@ body {
 #detached-07,
 #detached-08,
 #detached-09,
-#detached-10,
-#detached-11 {
+#detached-10 {
   box-shadow: 0 -5rem 1rem -5rem #e6e6e6 inset;
 }
 
