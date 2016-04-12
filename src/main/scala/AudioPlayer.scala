@@ -34,11 +34,14 @@ class AudioPlayer(app: App, audio: html.Audio) extends NeedUserTouchPrivilege wi
     dump(f"callback of ${ event.`type` }")
   }
 
-  private def playHandler = (event: dom.Event) => {
-    if (canPlay && !playing) {
-      playing = true
-      app.flash.musicStart()
-    }
+  private def playingHandler = (event: dom.Event) => {
+    playing = true
+    app.flash.musicStart()
+  }
+
+  private def pauseHandler = (event: dom.Event) => {
+    playing = false
+    app.flash.musicEnd()
   }
 
   private def canPlayHandler = (event: dom.Event) => {
@@ -48,15 +51,16 @@ class AudioPlayer(app: App, audio: html.Audio) extends NeedUserTouchPrivilege wi
   private def endedHandler = (event: dom.Event) => {
     if (app.holdReplayAudio && listeners.nonEmpty) {
       _play()
-    } else {
-      playing = false
-      app.flash.musicEnd()
     }
   }
 
   @elidable(elidable.FINE)
   def attachDebugEventListeners(): Unit = {
     audio.addEventListener("play", debugHandler)
+    audio.addEventListener("playing", debugHandler)
+    audio.addEventListener("pause", debugHandler)
+    audio.addEventListener("timeupdate", debugHandler)
+    audio.addEventListener("suspend", debugHandler)
     audio.addEventListener("canplay", debugHandler)
     audio.addEventListener("canplaythrough", debugHandler)
     audio.addEventListener("durationchange", debugHandler)
@@ -78,7 +82,8 @@ class AudioPlayer(app: App, audio: html.Audio) extends NeedUserTouchPrivilege wi
     dump(f"prepare")
     if (!prepared) {
       debug(f"setting event listeners to the audio element")
-      audio.addEventListener("play", playHandler)
+      audio.addEventListener("play", playingHandler)
+      audio.addEventListener("pause", pauseHandler)
       audio.addEventListener("canplay", canPlayHandler)
       audio.addEventListener("ended", endedHandler)
       attachDebugEventListeners()

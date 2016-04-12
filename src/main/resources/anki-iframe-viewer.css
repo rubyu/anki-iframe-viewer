@@ -36,7 +36,9 @@ body {
   bottom: 0.05rem;
   width: 100vw;
 }
-#horizontal-bar-icon1 {
+#horizontal-bar-icon1-A,
+#horizontal-bar-icon1-B {
+  visibility: hidden;
   position: absolute;
   right: 0.5rem;
   bottom: 0.1rem;
@@ -45,7 +47,7 @@ body {
   text-align: center;
   font-size: 0.5rem;
   line-height: 0.5rem;
-  -webkit-filter: grayscale(100%) opacity(80%);
+  -webkit-filter: grayscale(100%) opacity(50%);
 }
 #horizontal-bar-progress-bar {
   position: absolute;
