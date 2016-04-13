@@ -195,13 +195,18 @@ body {
 .KQNEWEJ6 .sense1,
 .KQNEWEJ6 .sense2,
 .KQNEWEJ6 .sense3,
+.PLUS     .sense1,
+.PLUS     .sense2,
 .LDOCE5   .sense1,
-.LDOCE5   .sense2 {
+.LDOCE5   .sense2,
+.OALD7    .sense1 {
  padding-left: 1.2rem;
 }
 .SRD      .pos,
 .KENE7J5  .pos,
 .KQNEWEJ6 .pos,
+.PLUS     .pos,
+.eijiro   .pos,
 .BODY     .pos {
  background-color: #e0ffe0;
 }
@@ -212,13 +217,17 @@ body {
 .KENE7J5  .sense2,
 .KQNEWEJ6 .sense1,
 .KQNEWEJ6 .sense3,
+.PLUS     .sense1,
+.eijiro   .sense1,
 .BODY     .sense1,
-.LDOCE5   .sense1 {
+.LDOCE5   .sense1,
+.OALD7    .sense1 {
  background-color: #ffe8e8;
 }
 .SRD      .sense2,
 .KENE7J5  .sense3,
 .KQNEWEJ6 .sense2,
+.PLUS     .sense2,
 .LDOCE5   .sense2 {
  background-color: #e8ffff;
 }
@@ -226,6 +235,14 @@ body {
 .KENE7J5  .sense1 {
  background-color: #e8e8ff;
 }
-.KQNEWEJ6 .ebul {
+.KQNEWEJ6 .ebul,
+.PLUS     .ebbo,
+.PLUS     .ebul,
+.PLUS     .ebit,
+.eijiro   .ebbo,
+.eijiro   .ebit,
+.LDOCE5   .ebbo,
+.OALD7    .ebbo,
+.BODY     .ebbo {
   font-weight: bold;
 }
