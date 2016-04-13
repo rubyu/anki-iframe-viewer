@@ -41,19 +41,19 @@ body {
   visibility: hidden;
   position: absolute;
   right: 0.5rem;
-  bottom: 0.1rem;
+  bottom: 0.15rem;
   height: 0.5rem;
-  width: 0.5rem;
+  width: 1rem;
   text-align: center;
   font-size: 0.5rem;
   line-height: 0.5rem;
-  -webkit-filter: grayscale(100%) opacity(50%);
+  -webkit-filter: grayscale(100%) opacity(40%);
 }
 #horizontal-bar-progress-bar {
   position: absolute;
   left: 0.5rem;
   bottom: 0.35rem;
-  width: calc(100vw - 2rem);
+  width: calc(100vw - 2.5rem);
 }
 #horizontal-bar-progress-total {
   position: absolute;
