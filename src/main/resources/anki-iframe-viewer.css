@@ -6,7 +6,7 @@
 
 html {
   overflow: hidden;
-  font-size: 100%;
+  font-size: 2vmin;
 }
 
 html * {
@@ -19,7 +19,7 @@ body {
   font-family: _myfont00, _myfont01, _myfont02, _myfont03, sans-serif, serif;
   text-align: left;
   -webkit-text-size-adjust: 100%;
-  line-height: 1.4rem;
+  line-height: 1.4;
   color: black;
   background-color: white;
 }
@@ -182,7 +182,7 @@ body {
 .LDOCE5 .sup {
   padding-left: 0.2rem;
   padding-right: 0.2rem;
-  line-height: 1.65rem;
+  line-height: 1.7;
 }
 .SRD      .sense1 {
  padding-left: 0.6rem;
