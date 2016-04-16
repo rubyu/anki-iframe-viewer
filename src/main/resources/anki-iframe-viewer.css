@@ -118,14 +118,9 @@ body {
   padding-top: 1rem;
   padding-bottom: 0.5rem;
 }
-#detached-04,
-#detached-05,
-#detached-06,
-#detached-07,
-#detached-08,
-#detached-09,
-#detached-10 {
+#detached-03:empty {
   display: inline-block;
+  width: 100vw;
 }
 #detached-03:not(:empty)::before {
   position: absolute;
