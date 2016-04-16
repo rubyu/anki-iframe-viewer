@@ -107,7 +107,17 @@ body {
 #detached-02 {
   display: none;
 }
-#detached-03,
+#detached-03:not(:empty),
+#detached-04:not(:empty),
+#detached-05:not(:empty),
+#detached-06:not(:empty),
+#detached-07:not(:empty),
+#detached-08:not(:empty),
+#detached-09:not(:empty),
+#detached-10:not(:empty) {
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+}
 #detached-04,
 #detached-05,
 #detached-06,
@@ -115,56 +125,55 @@ body {
 #detached-08,
 #detached-09,
 #detached-10 {
-  padding-top: 1rem;
-  padding-bottom: 0.5rem;
+  display: inline-block;
 }
-#detached-03::before {
+#detached-03:not(:empty)::before {
   position: absolute;
   top: 1rem;
-  right: 1rem;
+  right: 0.5rem;
   content: "【ランダムハウス英語辞典】";
 }
-#detached-04::before,
-#detached-05::before,
-#detached-06::before,
-#detached-07::before,
-#detached-08::before,
-#detached-09::before,
-#detached-10::before {
+#detached-04:not(:empty)::before,
+#detached-05:not(:empty)::before,
+#detached-06:not(:empty)::before,
+#detached-07:not(:empty)::before,
+#detached-08:not(:empty)::before,
+#detached-09:not(:empty)::before,
+#detached-10:not(:empty)::before {
   display: inline-block;
   float: right;
   margin: 0 0.5rem 0.5rem auto;
   text-align: right;
 }
-#detached-04::before {
+#detached-04:not(:empty)::before {
   content: "【研究社 新英和大辞典】";
 }
-#detached-05::before {
+#detached-05:not(:empty)::before {
   content: "【リーダーズ・プラス】";
 }
-#detached-06::before {
+#detached-06:not(:empty)::before {
   content: "【英辞郎】";
 }
-#detached-07::before  {
+#detached-07:not(:empty)::before  {
   content: "【ロングマン現代英英辞典】";
 }
-#detached-08::before {
+#detached-08:not(:empty)::before {
   content: "【オックスフォード現代英英辞典】";
 }
-#detached-09::before {
+#detached-09:not(:empty)::before {
   content: "【斎藤和英大辞典】";
 }
-#detached-10::before,  {
+#detached-10:not(:empty)::before,  {
   content: "【ロングマン現代英英辞典】";
 }
-#detached-03,
-#detached-04,
-#detached-05,
-#detached-06,
-#detached-07,
-#detached-08,
-#detached-09,
-#detached-10 {
+#detached-03:not(:empty),
+#detached-04:not(:empty),
+#detached-05:not(:empty),
+#detached-06:not(:empty),
+#detached-07:not(:empty),
+#detached-08:not(:empty),
+#detached-09:not(:empty),
+#detached-10:not(:empty) {
   box-shadow: 0 -5rem 1rem -5rem #e6e6e6 inset;
 }
 
