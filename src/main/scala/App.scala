@@ -219,6 +219,7 @@ class App(
       document.addEventListener("touchstart", touchStartHandler)
       document.addEventListener("touchmove",  touchMoveHandler)
       document.addEventListener("touchend",   touchEndHandler)
+      document.addEventListener("touchcancel",   touchEndHandler)
     }
   }
 
