@@ -53,10 +53,36 @@
   meta.setAttribute("name", "viewport");
   meta.setAttribute("content", "width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no");
   document.getElementsByTagName("head")[0].appendChild(meta);
+  
+  /* Trying to solve `touchend not firing` problem ... but, this may have no effect :( */
+  document.addEventListener("touchstart", function(event) {
+    event.preventDefault();
+  }, false);
+  document.addEventListener("touchmove", function(event) {
+    event.preventDefault();
+  }, false);
+  document.addEventListener("touchend", function(event) {
+    event.preventDefault();
+  }, false);
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementsByTagName("iframe")[0].focus();
+  }, false);
 </script>
 <div id="outer"><iframe src="7F7538704ECBCFF36ADAFE8A746D1FA4.html"></iframe></div>
 -->
 <script type="text/javascript">
+  document.addEventListener("touchstart", function(event) {
+    event.preventDefault();
+  }, false);
+  document.addEventListener("touchmove", function(event) {
+    event.preventDefault();
+  }, false);
+  document.addEventListener("touchend", function(event) {
+    event.preventDefault();
+  }, false);
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementsByTagName("iframe")[0].focus();
+  }, false);
 </script>
 </head>
 <body>

@@ -27,29 +27,35 @@ class GestureLog(val start: GestureLogItem) {
 }
 
 class Gesture(app: App) extends Logger {
-  val gestures = mutable.HashMap.empty[Double, GestureLog]
+  private val gestures = mutable.HashMap.empty[Double, GestureLog]
 
-  def longTapCallback(id: Double, g: GestureLog) = () => {
+  def hasDuplicateEvent(x: Double, y: Double, timestamp: Double) =
+    gestures.exists{ case (_, g) =>
+      x == g.start.x &&
+      y == g.start.y &&
+      timestamp - g.start.timestamp < app.dispatcherDuplicateEventWindowMillis
+    }
+
+  private def longTapCallback(id: Double, g: GestureLog) = () => {
     debug(f"callback of a timer to check whether or not LongTap; id: $id")
     if (g.end.isDefined) {
       debug("gesture already completed")
     } else {
-      checkLongTap(g)
-      if (g.tpe == LongTap) {
-        debug(f"longtap")
+      if (isLongTap(g)) {
+        g.tpe = LongTap
+        debug(f"is longtap")
         app.touchEvent.longTapStart(id)
       }
     }
   }
 
-  def timeoutCallback(id: Double, g: GestureLog) = () => {
+  private def timeoutCallback(id: Double, g: GestureLog) = () => {
     debug(f"callback of a timer of gesture timeout; id: $id")
     if (g.end.isDefined) {
       debug("gesture already completed")
     } else {
-      checkLongTap(g)
       if (g.tpe == ND) {
-        debug(f"timeout")
+        debug(f"is timeout")
         g.tpe = TimeOut
         //app.flash.castInformation("Gesture Timeout")
       }
@@ -76,32 +82,45 @@ class Gesture(app: App) extends Logger {
   }
   def end(id: Double, x: Double, y: Double): Unit = {
     debug(f"end| id: $id, x: $x, y: $y")
+    app.touchEvent.longTapEnd(id)
     if (!has(id)) {
       debug(f"the GestureLog corresponding to id($id) was not found")
       return
     }
     val g = gestures(id)
     g.end = Some(new GestureLogItem(x, y))
-    if (g.tpe == LongTap || g.tpe == TimeOut) {
-      debug(f"gesture already completed: ${g.tpe}")
-      return
+    if (g.tpe == ND) {
+      g.tpe = getGestureType(g.start, g.end.get)
     }
-    g.tpe = getGestureType(g.start, g.end.get)
     debug(f"type: ${ g.tpe }")
+    g.tpe match {
+      case ND             => throw new IllegalStateException()
+      case LeftTap        => app.touchEvent.leftTap()
+      case CenterTap      => app.touchEvent.centerTap()
+      case RightTap       => app.touchEvent.rightTap()
+      case LongTap        => app.touchEvent.longTapEnd(id)
+      case SwipeLeft      => app.touchEvent.left()
+      case SwipeRight     => app.touchEvent.right()
+      case SwipeUp        => app.touchEvent.up()
+      case SwipeDown      => app.touchEvent.down()
+      case LongSwipeLeft  => app.touchEvent.longLeft()
+      case LongSwipeRight => app.touchEvent.longRight()
+      case LongSwipeUp    => app.touchEvent.longUp()
+      case LongSwipeDown  => app.touchEvent.longDown()
+      case TimeOut        => // do nothing
+    }
   }
 
-  def delete(id: Double): Unit = gestures.remove(id)
-  def has(id: Double) = gestures.contains(id)
-  def get(id: Double) = gestures(id)
+  private def has(id: Double) = gestures.contains(id)
 
-  def withinMinLongTouchMillis(a: GestureLogItem, b: GestureLogItem) =
+  private def withinMinLongTouchMillis(a: GestureLogItem, b: GestureLogItem) =
     if (a.timestamp > b.timestamp) a.timestamp - b.timestamp < app.minLongTouchMillis
     else                           b.timestamp - a.timestamp < app.minLongTouchMillis
 
-  def withinMinSwipeSize(a: GestureLogItem, b: GestureLogItem) =
+  private def withinMinSwipeSize(a: GestureLogItem, b: GestureLogItem) =
     math.max(math.abs(a.x - b.x), math.abs(a.y - b.y)) < app.minSwipeSize
 
-  def hasNoMoveEvents(g: GestureLog) = {
+  private def isLongTap(g: GestureLog) = {
     g.moves.filter { event =>
       withinMinLongTouchMillis(event, g.start)
     } forall { event =>
@@ -109,16 +128,10 @@ class Gesture(app: App) extends Logger {
     }
   }
 
-  def checkLongTap(g: GestureLog): Unit = {
-    if (hasNoMoveEvents(g)) {
-      g.tpe = LongTap
-    }
-  }
-
-  def getGestureType(start: GestureLogItem, end: GestureLogItem) =
+  private def getGestureType(start: GestureLogItem, end: GestureLogItem) =
     getSwipeType(start, end) getOrElse getTapType(end.x)
 
-  def getTapType(x: Double): GestureType = {
+  private def getTapType(x: Double): GestureType = {
     val pos = x - window.pageXOffset
     val border = window.innerWidth / 2
     val centerBorder = window.innerWidth * app.centerTapRatio / 2
@@ -131,7 +144,7 @@ class Gesture(app: App) extends Logger {
     }
   }
 
-  def getSwipeType(start: GestureLogItem, end: GestureLogItem): Option[GestureType] = {
+  private def getSwipeType(start: GestureLogItem, end: GestureLogItem): Option[GestureType] = {
     val dx = start.x - end.x
     val dy = start.y - end.y
     val x = math.abs(dx)
