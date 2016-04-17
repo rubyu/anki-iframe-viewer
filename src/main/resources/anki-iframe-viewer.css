@@ -17,7 +17,7 @@ body {
   margin: 1rem 0 1rem 0;
   height: calc(100% - 2rem);
   font-family: _myfont00, _myfont01, _myfont02, _myfont03, sans-serif, serif;
-  text-align: justify;
+  text-align: left;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel–antialiased;
   -webkit-text-size-adjust: 100%;
