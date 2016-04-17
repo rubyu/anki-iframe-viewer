@@ -179,6 +179,15 @@ class App(
     event.preventDefault()
   }
 
+  def touchCancelHandler = (event: dom.TouchEvent) => {
+    for (i <- 0 until event.changedTouches.length) {
+      val touch = event.changedTouches(i)
+      debug(f"touchcancel: $touch")
+      touchDispatcher.dispatchEnd(touch.identifier, touch.pageX, touch.pageY)
+    }
+    event.preventDefault()
+  }
+
   def DOMContentLoadedHandler = (e: dom.Event) => {
     if (!Viewer.canRun) {
       fatal("AnkiIframeViewer cannot work on old browsers :(")
@@ -218,7 +227,7 @@ class App(
       document.addEventListener("touchstart", touchStartHandler)
       document.addEventListener("touchmove",  touchMoveHandler)
       document.addEventListener("touchend",   touchEndHandler)
-      document.addEventListener("touchcancel",   touchEndHandler)
+      document.addEventListener("touchcancel",   touchCancelHandler)
     }
   }
 
