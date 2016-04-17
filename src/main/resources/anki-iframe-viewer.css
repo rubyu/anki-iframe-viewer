@@ -149,7 +149,7 @@ body {
 #detached-06:not(:empty)::before {
   content: "【英辞郎】";
 }
-#detached-07:not(:empty)::before  {
+#detached-07:not(:empty)::before {
   content: "【ロングマン現代英英辞典】";
 }
 #detached-08:not(:empty)::before {
@@ -158,7 +158,7 @@ body {
 #detached-09:not(:empty)::before {
   content: "【斎藤和英大辞典】";
 }
-#detached-10:not(:empty)::before,  {
+#detached-10:not(:empty)::before {
   content: "【ロングマン現代英英辞典】";
 }
 #detached-03:not(:empty),
