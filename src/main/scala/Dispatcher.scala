@@ -3,17 +3,29 @@ import scala.scalajs.js
 class Dispatcher(app: App, preferredDispatcher: Option[Dispatcher] = None) extends Logger {
   val gesture = new Gesture(app)
 
-  var lastDispatchTime = js.Date.now()
-
-  def dispatchStart(id: Double, x: Double, y: Double): Unit = gesture.start(id, x, y)
-  def dispatchMove(id: Double, x: Double, y: Double): Unit = gesture.move(id, x, y)
-  def dispatchEnd(id: Double, x: Double, y: Double): Unit = {
-    lastDispatchTime = js.Date.now()
-    if (preferredDispatcher.isDefined &&
-        lastDispatchTime - preferredDispatcher.get.lastDispatchTime < app.dispatcherDuplicateEventWindowMillis) {
-      debug(f"duplicate event: $id")
-      return
+  private def isDuplicateEvent(x: Double, y: Double, timestamp: Double) =
+    preferredDispatcher match {
+      case None => false
+      case Some(dispatcher) => dispatcher.gesture.gestures.exists{ case (_, g) =>
+        x == g.start.x &&
+        y == g.start.y &&
+        timestamp - g.start.timestamp < app.dispatcherDuplicateEventWindowMillis
+      }
     }
+
+  def dispatchStart(id: Double, x: Double, y: Double): Unit = {
+    debug(f"dispatch start")
+    if (!isDuplicateEvent(x, y, js.Date.now())) {
+      gesture.start(id, x, y)
+    } else {
+      debug(f"is duplicate event")
+    }
+  }
+  def dispatchMove(id: Double, x: Double, y: Double): Unit = {
+    gesture.move(id, x, y)
+  }
+  def dispatchEnd(id: Double, x: Double, y: Double): Unit = {
+    debug(f"dispatch end")
     if (gesture.has(id)) {
       gesture.end(id, x, y)
       gesture.get(id).tpe match {
