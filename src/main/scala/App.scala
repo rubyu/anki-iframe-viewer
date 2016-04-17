@@ -81,7 +81,6 @@ class App(
 
   // System settings.
   val UIRefreshIntervalMillis = 10 //ms
-  val forcePlayAudioIntervalMillis = 10 //ms
 
   // User editable settings.
   val minSwipeSize                        : Double = userMinSwipeSize.getOrElse(20)
