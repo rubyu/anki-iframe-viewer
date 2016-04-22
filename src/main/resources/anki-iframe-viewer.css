@@ -82,7 +82,6 @@ body {
 }
 #detached-01 table {
   float: right;
-  margin-top: 0.8rem;
   margin-left: auto;
   margin-right: 1rem;
   padding-left: 0.2rem;
@@ -107,56 +106,40 @@ body {
 #detached-02 {
   display: none;
 }
-#detached-03:empty {
-  display: inline-block;
-  width: 100vw;
+#detached-03:not(:empty)::after,
+#detached-04:not(:empty)::after,
+#detached-05:not(:empty)::after,
+#detached-06:not(:empty)::after,
+#detached-07:not(:empty)::after,
+#detached-08:not(:empty)::after,
+#detached-09:not(:empty)::after,
+#detached-10:not(:empty)::after {
+  display: block;
+  text-align: right;
+  font-size: 0.8rem;
 }
-#detached-03:not(:empty)::before,
-#detached-04:not(:empty)::before,
-#detached-05:not(:empty)::before,
-#detached-06:not(:empty)::before,
-#detached-07:not(:empty)::before,
-#detached-08:not(:empty)::before,
-#detached-09:not(:empty)::before,
-#detached-10:not(:empty)::before {
-  font-size: 0.5rem;
-}
-#detached-03:not(:empty)::before {
-  position: absolute;
-  top: 0.5rem;
-  right: 0;
+#detached-03:not(:empty)::after {
   content: "【ランダムハウス英語辞典】";
 }
-#detached-04:not(:empty)::before,
-#detached-05:not(:empty)::before,
-#detached-06:not(:empty)::before,
-#detached-07:not(:empty)::before,
-#detached-08:not(:empty)::before,
-#detached-09:not(:empty)::before,
-#detached-10:not(:empty)::before {
-  display: inline-block;
-  float: right;
-  margin: 0.5rem 0 0.2rem auto;
-}
-#detached-04:not(:empty)::before {
+#detached-04:not(:empty)::after {
   content: "【研究社 新英和大辞典】";
 }
-#detached-05:not(:empty)::before {
+#detached-05:not(:empty)::after {
   content: "【リーダーズ・プラス】";
 }
-#detached-06:not(:empty)::before {
+#detached-06:not(:empty)::after {
   content: "【英辞郎】";
 }
-#detached-07:not(:empty)::before {
+#detached-07:not(:empty)::after {
   content: "【ロングマン現代英英辞典】";
 }
-#detached-08:not(:empty)::before {
+#detached-08:not(:empty)::after {
   content: "【オックスフォード現代英英辞典】";
 }
-#detached-09:not(:empty)::before {
+#detached-09:not(:empty)::after {
   content: "【斎藤和英大辞典】";
 }
-#detached-10:not(:empty)::before {
+#detached-10:not(:empty)::after {
   content: "【ロングマン現代英英辞典】";
 }
 #detached-03:not(:empty),
@@ -171,13 +154,13 @@ body {
 }
 
 .ebquery:first-child {
-  padding-top: 1rem;
+  padding-top: 0.5rem;
 }
 .ebquery:last-child {
   padding-bottom: 0.5rem;
 }
 .ebquery {
-  padding: 0.5rem 1rem 0 1rem;
+  padding: 0 1rem 0 1rem;
   display: block;
   word-wrap: break-word;
 }
