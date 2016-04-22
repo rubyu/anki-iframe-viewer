@@ -9,5 +9,5 @@ AnkiIframeViewerApp()
   .chapter("#detached-08", "オックスフォード現代英英辞典")
   .chapter("#detached-09", "斎藤和英大辞典")
   .chapter("#detached-10", "ロングマン現代英英辞典")
-  .autoPlayAudio(false)
+  .autoPlayAudio(true)
   .run();

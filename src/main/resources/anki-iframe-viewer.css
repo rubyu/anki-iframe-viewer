@@ -82,11 +82,11 @@ body {
 }
 #detached-01 table {
   float: right;
-  margin-top: 2rem;
+  margin-top: 0.8rem;
   margin-left: auto;
   margin-right: 1rem;
   padding-left: 0.2rem;
-  max-width: 60vw;
+  max-width: 50vw;
 }
 #detached-01 table * {
   font-weight: normal;
@@ -96,7 +96,7 @@ body {
 #detached-01 td {
   margin: 2rem 0 2rem 0;
   text-align: center;
-  min-width: 12vw;
+  min-width: 10vw;
 }
 #detached-01 thead tr {
   background-color: #f2f2f2;
@@ -107,25 +107,24 @@ body {
 #detached-02 {
   display: none;
 }
-#detached-03:not(:empty),
-#detached-04:not(:empty),
-#detached-05:not(:empty),
-#detached-06:not(:empty),
-#detached-07:not(:empty),
-#detached-08:not(:empty),
-#detached-09:not(:empty),
-#detached-10:not(:empty) {
-  padding-top: 1rem;
-  padding-bottom: 0.5rem;
-}
 #detached-03:empty {
   display: inline-block;
   width: 100vw;
 }
+#detached-03:not(:empty)::before,
+#detached-04:not(:empty)::before,
+#detached-05:not(:empty)::before,
+#detached-06:not(:empty)::before,
+#detached-07:not(:empty)::before,
+#detached-08:not(:empty)::before,
+#detached-09:not(:empty)::before,
+#detached-10:not(:empty)::before {
+  font-size: 0.5rem;
+}
 #detached-03:not(:empty)::before {
   position: absolute;
-  top: 1rem;
-  right: 0.5rem;
+  top: 0.5rem;
+  right: 0;
   content: "【ランダムハウス英語辞典】";
 }
 #detached-04:not(:empty)::before,
@@ -137,8 +136,7 @@ body {
 #detached-10:not(:empty)::before {
   display: inline-block;
   float: right;
-  margin: 0 0.5rem 0.5rem auto;
-  text-align: right;
+  margin: 0.5rem 0 0.2rem auto;
 }
 #detached-04:not(:empty)::before {
   content: "【研究社 新英和大辞典】";
@@ -172,8 +170,14 @@ body {
   box-shadow: 0 -5rem 1rem -5rem #e6e6e6 inset;
 }
 
+.ebquery:first-child {
+  padding-top: 1rem;
+}
+.ebquery:last-child {
+  padding-bottom: 0.5rem;
+}
 .ebquery {
-  padding: 0 1rem 0 1rem;
+  padding: 0.5rem 1rem 0 1rem;
   display: block;
   word-wrap: break-word;
 }
