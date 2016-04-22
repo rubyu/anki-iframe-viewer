@@ -216,8 +216,13 @@ class App(
       touchDispatcher = new Dispatcher(this)
       mouseDispatcher = new Dispatcher(this, Option(touchDispatcher))
 
-      if (autoPlayAudio && audioPlayer != null) {
-        audioPlayer.play()
+      if (audio.isDefined) {
+        // Call `audio.load()` without distinction of with or without UserTouchPrivilege.
+        // If this failed, `callWithUserTouchPrivilege()` will be called at first user touch.
+        audioPlayer.load()
+        if (autoPlayAudio) {
+          audioPlayer.play()
+        }
       }
 
       document.addEventListener("mousewheel", mouseWheelHandler)

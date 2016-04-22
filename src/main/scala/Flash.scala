@@ -17,8 +17,12 @@ class Flash(app: App, audioPlayer: Option[AudioPlayer]) extends Logger {
   private val icon1_B = document.createElement("div").asInstanceOf[html.Div]
   icon1_B.id = "horizontal-bar-icon1-B"
   icon1_B.innerHTML = musicPlayingIcon
+  private val icon1_C = document.createElement("div").asInstanceOf[html.Div]
+  icon1_C.id = "horizontal-bar-icon1-C"
+  icon1_C.innerHTML = musicAlertIcon
   icon1.appendChild(icon1_A)
   icon1.appendChild(icon1_B)
+  icon1.appendChild(icon1_C)
   horizontalBar.appendChild(icon1)
   // progress bar
   private val progress = document.createElement("div").asInstanceOf[html.Div]
@@ -49,17 +53,23 @@ class Flash(app: App, audioPlayer: Option[AudioPlayer]) extends Logger {
       case Some(_) => "&#x266b;"
       case None =>    ""
     }
-
   private def musicPlayingIcon = "&#x1f50a;"
+  private def musicAlertIcon   = "&#x26a0;"
 
   private def showDefaultMusicIcon(): Unit = {
     icon1_B.style.visibility = "hidden"
+    icon1_C.style.visibility = "hidden"
     icon1_A.style.visibility = "visible"
   }
-
   private def showMusicPlayingIcon() {
     icon1_A.style.visibility = "hidden"
+    icon1_C.style.visibility = "hidden"
     icon1_B.style.visibility = "visible"
+  }
+  private def showMusicAlertIcon() {
+    icon1_A.style.visibility = "hidden"
+    icon1_B.style.visibility = "hidden"
+    icon1_C.style.visibility = "visible"
   }
 
   private def currentProgressLengthInPercentile =
@@ -71,11 +81,15 @@ class Flash(app: App, audioPlayer: Option[AudioPlayer]) extends Logger {
     current.style.visibility = "visible"
   }
 
-  def musicStart(): Unit = {
+  def musicPlaying(): Unit = {
     showMusicPlayingIcon()
   }
 
-  def musicEnd(): Unit = {
+  def musicDefault(): Unit = {
     showDefaultMusicIcon()
+  }
+
+  def musicAlert(): Unit = {
+    showMusicAlertIcon()
   }
 }
