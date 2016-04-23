@@ -6,3 +6,8 @@ html {
 #detached {
   -webkit-column-width: 50vw;
 }
+
+#detached-01 table {
+  float: none;
+  margin: 0 auto 0 auto;
+}

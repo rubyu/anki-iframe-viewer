@@ -1,7 +1,7 @@
 
 $7z = "C:\Program Files\7-Zip\7z.exe"
 
-$devices = @("PC", "Nexus7", "SO-01G")
+$devices = @("PC", "Nexus7", "SO-03G")
 
 $cssA  = "anki-iframe-viewer.css"
 $_cssB = "post.css"
