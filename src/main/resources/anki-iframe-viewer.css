@@ -41,7 +41,8 @@ body {
   width: 100vw;
 }
 #horizontal-bar-icon1-A,
-#horizontal-bar-icon1-B {
+#horizontal-bar-icon1-B,
+#horizontal-bar-icon1-C {
   visibility: hidden;
   position: absolute;
   right: 0.5rem;
@@ -50,7 +51,7 @@ body {
   text-align: center;
   font-size: 0.5rem;
   line-height: 1;
-  -webkit-filter: grayscale(100%) opacity(40%);
+  -webkit-filter: grayscale(100%) opacity(50%);
 }
 #horizontal-bar-progress-bar {
   position: absolute;
@@ -74,7 +75,7 @@ body {
 #detached-00 {
   display: inline;
   margin-left: 1rem;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   line-height: 2rem;
 }
 #detached-01 {
@@ -86,10 +87,11 @@ body {
   margin-right: 1rem;
   padding-left: 0.2rem;
   max-width: 50vw;
+  border-collapse: collapse;
+  border: 0;
 }
 #detached-01 table * {
   font-weight: normal;
-  font-size: 0.8rem;
   line-height: 1.1rem;
 }
 #detached-01 td {
@@ -97,11 +99,18 @@ body {
   text-align: center;
   min-width: 10vw;
 }
-#detached-01 thead tr {
-  background-color: #f2f2f2;
+#detached-01 thead th {
+  background-color: #f0f0f0;
+  font-size: 0.4rem;
 }
 #detached-01 tbody td {
-  border-bottom: 0.05rem solid #eaeaea;
+  font-size: 0.6rem;
+}
+#detached-01 tbody:nth-child(2n) td {
+  background-color: #fefefe;
+}
+#detached-01 tbody:nth-child(2n+1) td {
+  background-color: #f9f9f9;
 }
 #detached-02 {
   display: none;
@@ -115,6 +124,7 @@ body {
 #detached-09:not(:empty)::after,
 #detached-10:not(:empty)::after {
   display: block;
+  padding-bottom: 0.2rem;
   text-align: right;
   font-size: 0.8rem;
 }
