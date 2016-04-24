@@ -1,4 +1,3 @@
-
 import org.scalajs.dom.{document, html, window}
 
 class Flash(app: App, audioPlayer: Option[AudioPlayer]) extends Logger {

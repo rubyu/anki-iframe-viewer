@@ -1,21 +1,19 @@
-import org.scalajs.dom.raw.HTMLUnknownElement
-import org.scalajs.dom.{document, html, window}
+import org.scalajs.dom
+import org.scalajs.dom.raw
+import org.scalajs.dom.{document, window}
 
 sealed trait LogicalChapter {
   def offsetLeft: Double
-  def caption: String
 }
 
-class Chapter(element: HTMLUnknownElement, val caption: String) extends LogicalChapter {
+class Chapter(element: raw.HTMLUnknownElement) extends LogicalChapter {
   def offsetLeft = element.offsetLeft
 }
 
 object StartOfCard extends LogicalChapter {
   def offsetLeft = 0.0
-  def caption = "カードのはじまり"
 }
 
 object EndOfCard extends LogicalChapter {
   def offsetLeft = document.body.scrollWidth
-  def caption = "カードの終わり"
 }

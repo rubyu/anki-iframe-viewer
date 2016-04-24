@@ -1,18 +1,29 @@
-import scala.collection.mutable
-import scala.scalajs.js
-import org.scalajs.dom.{document, html, window}
-import org.scalajs.dom.raw.HTMLUnknownElement
+import org.scalajs.dom
+import org.scalajs.dom.raw
+import org.scalajs.dom.{document, window}
 
 object Viewer {
   def canRun: Boolean = {
-    val elem = document.createElement("div").asInstanceOf[html.Div]
+    val elem = document.createElement("div").asInstanceOf[dom.html.Div]
     val value = "100px"
     elem.style.columnWidth = value
     value == elem.style.columnWidth.toString
   }
 }
 
-class Viewer(app: App, chapters: List[Chapter]) extends Logger {
+class Viewer(app: App, chapterElements: List[raw.HTMLUnknownElement]) extends Logger {
+
+  private val unsortedChapters =
+    chapterElements
+      .map(new Chapter(_))
+
+  private def chapters =
+    unsortedChapters
+      .sortWith(_.offsetLeft < _.offsetLeft)
+
+  debug(f"unsortedChapters: $unsortedChapters")
+  debug(f"chapters: $chapters")
+
   def viewSize: Double = window.innerWidth
   def position: Double = window.pageXOffset
   def ordinaryPosition(m: Double): Double = {
@@ -51,8 +62,8 @@ class Viewer(app: App, chapters: List[Chapter]) extends Logger {
         if (p != op) {
           error(f"given position is not ordinary: $p; nearest ordinary position: $op")
         }
-        setPosition(op, c.caption)
-      case c => setPosition(c.offsetLeft, c.caption)
+        setPosition(op)
+      case c => setPosition(c.offsetLeft)
     }
   }
   def goPrevPage(): Unit = setPosition(ordinaryPosition(position) - viewSize)

@@ -23,6 +23,11 @@ object Build extends sbt.Build {
     settings(Seq(
       dist := distTask.dependsOn(fastOptJS in Compile).value
     )).
+    settings(Seq(
+      scalacOptions := Seq(
+        "-feature"
+      )
+    )).
     settings(
       libraryDependencies ++= Seq(
         "org.scala-lang" % "scala-reflect" % "2.11.8",
@@ -43,6 +48,7 @@ object Build extends sbt.Build {
     )).
     settings(Seq(
       scalacOptions := Seq(
+        "-feature",
         "-Xdisable-assertions"
       )
     )).

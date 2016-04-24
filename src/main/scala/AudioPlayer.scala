@@ -1,10 +1,11 @@
 import org.scalajs.dom
-import org.scalajs.dom.html
-
+import org.scalajs.dom.raw
+import org.scalajs.dom.{document, window}
 import scala.annotation.elidable
 import scala.collection.mutable
 
-class AudioPlayer(app: App, audio: html.Audio) extends NeedUserTouchPrivilege with Logger {
+class AudioPlayer(app: App, audioElements: List[raw.HTMLAudioElement]) extends NeedUserTouchPrivilege with Logger {
+  private val audio = audioElements.head
   private val listeners = mutable.HashSet.empty[Double]
   private var prepared = false
   private var privilegeCalled = false
