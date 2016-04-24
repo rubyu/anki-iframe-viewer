@@ -16,59 +16,99 @@ class Viewer(app: App, chapterElements: List[raw.HTMLUnknownElement]) extends Lo
   private val unsortedChapters =
     chapterElements
       .map(new Chapter(_))
+  private var chapters: List[Chapter] = _
+  private var lastMarker: Option[Marker] = None
 
-  private def chapters =
-    unsortedChapters
-      .sortWith(_.offsetLeft < _.offsetLeft)
+  private def updateState(): Unit = {
+    trace("updateState")
+    chapters =
+      unsortedChapters
+      .sortBy(_.offsetLeft)
+  }
+  updateState()
 
-  debug(f"unsortedChapters: $unsortedChapters")
-  debug(f"chapters: $chapters")
-
+  def totalSize: Double = document.body.scrollWidth
   def viewSize: Double = window.innerWidth
   def position: Double = window.pageXOffset
-  def ordinaryPosition(m: Double): Double = {
+
+  private def ordinalPosition(m: Double): Double = {
     val n = viewSize
-    m % n match {
-      case q if q > 0 =>
-        debug(f"m: $m, n: $n, q: $q>0 ordinaryPosition: ${ math.floor((m / n) + 0.5) * n }")
-        math.floor((m / n) + 0.5)
-      case q =>
-        debug(f"m: $m, n: $n, q: $q==0 ordinaryPosition: $m")
-        m
+    if (m > totalSize - viewSize) {
+      error(f"$m is greater than application total size")
+      totalSize - viewSize
+    } else {
+      m % n match {
+        case q if q > 0 =>
+          trace(f"q > 0")
+          val o = math.floor((m / n) + 0.5) * n
+          trace(f"m: $m, n: $n, q: $q, fixed position: $o")
+          o
+        case q =>
+          trace(f"q == 0")
+          trace(f"m: $m, n: $n, q: $q")
+          m
+      }
     }
   }
-  def setPosition(pos: Double, caption: String): Unit = setPosition(pos, Some(caption))
-  def setPosition(pos: Double): Unit = setPosition(pos, None)
-  def setPosition(pos: Double, caption: Option[String]): Unit = {
-    debug(f"set position: $pos")
-    window.scrollTo(pos.toInt, 0)
+
+  private def setPosition(d: Double): Unit = {
+    debug(f"setPosition: $d")
+    val o = ordinalPosition(d)
+    debug(f"ordinalPosition: $o")
+    val (chapter, relative) = activeChapters(o) match {
+      case xs if xs.isEmpty => (None, o / totalSize)
+      case xs => chapterSize(xs.last) match {
+        case n if n > 0 => (Some(xs.head), (o - xs.head.offsetLeft) / n)
+        case n => (Some(xs.head), 0.0)
+      }
+    }
+    val marker = new Marker(this, o, totalSize, chapter, relative)
+    debug(f"set marker: $marker")
+    lastMarker = Some(marker)
+    window.scrollTo(o.toInt, 0)
     app.flash.updateProgressBar()
   }
-  def activeChapters: List[Chapter] = {
-    val pos = ordinaryPosition(position)
-    chapters.reverse.find(_.offsetLeft <= pos) match {
-      case Some(lower) if pos == lower.offsetLeft => chapters.filter(_.offsetLeft == lower.offsetLeft)
+
+  /* Calculate the size of given chapter by subtracting offsetLeft of the next chapter from
+   * given chapter's.
+   * Return value may be zero.
+   * */
+  private def chapterSize(c: Chapter) = {
+    val next =
+      if (chapters.last == c) EndOfCard
+      else chapters(chapters.indexOf(c)+1)
+    next.offsetLeft - c.offsetLeft
+  }
+
+  private def activeChapters(d: Double): List[Chapter] = {
+    chapters.reverse.find(_.offsetLeft <= d) match {
+      case Some(lower) if d == lower.offsetLeft => chapters.filter(_.offsetLeft == lower.offsetLeft)
       case Some(lower) => lower :: Nil
       case None => Nil
     }
   }
-  def atFirstPageOf(c: Chapter) = position == c.offsetLeft
+  private def activeChapters: List[Chapter] = activeChapters(position)
+
+  private def atFirstPageOf(c: Chapter) = position == c.offsetLeft
+
   def go(chapter: LogicalChapter): Unit = {
     debug(f"go: $chapter")
-    chapter match {
-      case c: Chapter =>
-        val p = c.offsetLeft
-        val op = ordinaryPosition(p)
-        if (p != op) {
-          error(f"given position is not ordinary: $p; nearest ordinary position: $op")
-        }
-        setPosition(op)
-      case c => setPosition(c.offsetLeft)
-    }
+    updateState()
+    setPosition(chapter.offsetLeft)
   }
-  def goPrevPage(): Unit = setPosition(ordinaryPosition(position) - viewSize)
-  def goNextPage(): Unit = setPosition(ordinaryPosition(position) + viewSize)
+  def goPrevPage(): Unit = {
+    debug(f"goPrevPage")
+    updateState()
+    setPosition(position - viewSize)
+  }
+  def goNextPage(): Unit = {
+    debug(f"goNextPage")
+    updateState()
+    setPosition(position + viewSize)
+  }
   def goPrevChapter(): Unit = {
+    debug(f"goPrevChapter")
+    updateState()
     if (chapters.isEmpty) {
       go(StartOfCard)
       return
@@ -83,6 +123,8 @@ class Viewer(app: App, chapterElements: List[raw.HTMLUnknownElement]) extends Lo
     }
   }
   def goNextChapter(): Unit = {
+    debug(f"goNextChapter")
+    updateState()
     if (chapters.isEmpty) {
       go(EndOfCard)
       return
@@ -96,11 +138,50 @@ class Viewer(app: App, chapterElements: List[raw.HTMLUnknownElement]) extends Lo
     }
   }
   def goFirstChapter(): Unit = {
+    debug(f"goFirstChapter")
+    updateState()
     if (chapters.isEmpty) go(StartOfCard)
     else go(chapters.head)
   }
   def goLastChapter(): Unit = {
+    debug(f"goLastChapter")
+    updateState()
     if (chapters.isEmpty) go(EndOfCard)
     else go(chapters.last)
   }
+
+  private def viewChangeHandler = (event: dom.Event) => {
+    debug(f"callback of ${ event.`type` }")
+    debug(f"position: $position")
+    updateState()
+    lastMarker match {
+      case Some(marker) if marker.hasChangedTotal =>
+        debug("the total size of the view has changed")
+        marker.chapter match {
+          case Some(c) =>
+            debug(f"restore the position from previous relative value on the last chapter")
+            setPosition(c.offsetLeft + chapterSize(c) * marker.relative)
+          case None =>
+            debug(f"restore the position from previous relative value to the entire view size")
+            setPosition(totalSize * marker.relative)
+        }
+      case Some(marker) if marker.hasDisturbedMark =>
+        debug("the position changed by disturbance factors")
+        debug(f"restore the previous position")
+        setPosition(marker.mark)
+      case _ =>
+        val op = ordinalPosition(position)
+        if (op != position) {
+          debug(f"the position is not ordinal")
+          debug(f"fixed position: $op")
+          setPosition(op)
+        }
+    }
+  }
+
+  debug(f"unsortedChapters: $unsortedChapters")
+  debug(f"chapters: $chapters")
+  debug(f"setting event listeners for `scroll` and `resize`")
+  document.addEventListener("scroll", viewChangeHandler)
+  window.addEventListener("resize", viewChangeHandler)
 }

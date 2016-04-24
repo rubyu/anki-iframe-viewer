@@ -184,14 +184,17 @@ class App(
     }
 
     mouseWheelEvent = new MouseWheelEvent(this)
+    debug(f"setting event listeners for `mousewheel`")
     document.addEventListener("mousewheel", mouseWheelHandler)
 
     touchEvent = new TouchEvent(this, Option(audioPlayer))
     val touchDispatcher = new Dispatcher(this)
     val mouseDispatcher = new Dispatcher(this, Option(touchDispatcher))
+    debug(f"setting event listeners for `mousedown`, `mousemove` and `mouseup`")
     document.addEventListener("mousedown", mouseHandler(mouseDispatcher.dispatchStart) _)
     document.addEventListener("mousemove", mouseHandler(mouseDispatcher.dispatchMove) _)
     document.addEventListener("mouseup",   mouseHandler(mouseDispatcher.dispatchEnd) _)
+    debug(f"setting event listeners for `touchstart`, `touchmove`, `touchend` and `touchcancel`")
     document.addEventListener("touchstart",  touchHandler(touchDispatcher.dispatchStart) _)
     document.addEventListener("touchmove",   touchHandler(touchDispatcher.dispatchMove) _)
     document.addEventListener("touchend",    touchHandler(touchDispatcher.dispatchEnd) _)
