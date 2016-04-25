@@ -85,7 +85,7 @@ body {
 }
 #detached-01 table {
   float: right;
-  margin: 0 1rem 0 auto;
+  margin: 0 1rem 0.5rem 0.5rem;
   max-width: 50vw;
   border-collapse: collapse;
   border: 0;
@@ -175,17 +175,14 @@ body {
 #detached-08 .ebquery:last-child,
 #detached-09 .ebquery:last-child,
 #detached-10 .ebquery:last-child {
-  box-shadow: 0 -5rem 1rem -5rem #e6e6e6 inset;
+  box-shadow: 0 -5rem 1rem -5rem #909090 inset;
 }
 .ebquery:first-child {
   padding-top: 0.5rem;
 }
 .ebquery:not(:first-child) {
-  margin-top: 0.25rem;
-  padding-top: 0.25rem;
-}
-.ebquery:last-child {
-  padding-bottom: 0.5rem;
+  margin-top: 0.1rem;
+  padding-top: 0.3rem;
 }
 .ebquery {
   margin: 0 0.5rem 0 0;
