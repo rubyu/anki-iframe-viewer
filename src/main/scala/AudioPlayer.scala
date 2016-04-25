@@ -20,7 +20,6 @@ class AudioPlayer(app: App, audioElements: List[raw.HTMLAudioElement]) extends N
     debug(f"prepared: $prepared")
     debug(f"canPlay: $canPlay")
     debug(f"playing: $playing")
-    debug(f"prepared: $prepared")
     debug(f"-" * 10)
   }
 
@@ -105,7 +104,7 @@ class AudioPlayer(app: App, audioElements: List[raw.HTMLAudioElement]) extends N
     dump(f"prepare")
     if (!prepared) {
       debug(f"setting event listeners to the audio element")
-      audio.addEventListener("play", playingHandler)
+      audio.addEventListener("playing", playingHandler)
       audio.addEventListener("pause", pauseHandler)
       audio.addEventListener("error", errorHandler)
       audio.addEventListener("canplay", canPlayHandler)
