@@ -27,6 +27,16 @@ body {
   color: black;
   background-color: white;
 }
+body::after {
+  content: "";
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: calc(100vw - 0.5rem);
+  height: 100%;
+  background: white;
+}
 
 #detached {
   height: 100%;
@@ -36,6 +46,7 @@ body {
 
 #horizontal-bar {
   position: fixed;
+  z-index: 2;
   left: 0;
   bottom: 0.05rem;
   width: 100vw;
@@ -46,12 +57,14 @@ body {
   visibility: hidden;
   position: absolute;
   right: 0.5rem;
-  bottom: 0.1rem;
+  bottom: 0.15rem;
   width: 1rem;
   text-align: center;
+  vertical-align: bottom;
+  font-family: san-serif, selif;
   font-size: 0.5rem;
-  line-height: 1;
-  -webkit-filter: grayscale(100%) opacity(50%);
+  line-height: 0.5;
+  -webkit-filter: grayscale(100%) opacity(70%);
 }
 #horizontal-bar-progress-bar {
   position: absolute;
@@ -73,15 +86,19 @@ body {
 }
 
 #detached-00 {
+  position: relative;
+  z-index: 3;
   display: inline;
-  margin-left: 1rem;
+  float: left;
+  margin: 0 auto 0 1rem;
   font-size: 1.2rem;
-  line-height: 2rem;
 }
 #detached-01 {
   display: inline;
 }
 #detached-01 table {
+  position: relative;
+  z-index: 3;
   float: right;
   margin: 0 1rem 0 auto;
   max-width: 50vw;
@@ -113,42 +130,9 @@ body {
 #detached-02 {
   display: none;
 }
-#detached-03:not(:empty)::after,
-#detached-04:not(:empty)::after,
-#detached-05:not(:empty)::after,
-#detached-06:not(:empty)::after,
-#detached-07:not(:empty)::after,
-#detached-08:not(:empty)::after,
-#detached-09:not(:empty)::after,
-#detached-10:not(:empty)::after {
-  display: block;
-  padding-bottom: 0.2rem;
-  text-align: right;
-  font-size: 0.8rem;
-}
-#detached-03:not(:empty)::after {
-  content: "【ランダムハウス英語辞典】";
-}
-#detached-04:not(:empty)::after {
-  content: "【研究社 新英和大辞典】";
-}
-#detached-05:not(:empty)::after {
-  content: "【リーダーズ・プラス】";
-}
-#detached-06:not(:empty)::after {
-  content: "【英辞郎】";
-}
-#detached-07:not(:empty)::after {
-  content: "【ロングマン現代英英辞典】";
-}
-#detached-08:not(:empty)::after {
-  content: "【オックスフォード現代英英辞典】";
-}
-#detached-09:not(:empty)::after {
-  content: "【斎藤和英大辞典】";
-}
-#detached-10:not(:empty)::after {
-  content: "【ロングマン現代英英辞典】";
+#detached-03:not(:empty)::before {
+  content: "\A";
+  white-space: pre;
 }
 #detached-03:not(:empty),
 #detached-04:not(:empty),
@@ -158,9 +142,56 @@ body {
 #detached-08:not(:empty),
 #detached-09:not(:empty),
 #detached-10:not(:empty) {
+  /* berry-juice from http://codepen.io/tumanova/pen/tkvmi?editors=0100 */
+  background-image: linear-gradient(to bottom, #c5d4d7 6%, #d6b98d 34%, #c99262 57%, #8c5962 80%, #43577e 100%);
+}
+#detached-03 .ebquery:last-child::after,
+#detached-04 .ebquery:last-child::after,
+#detached-05 .ebquery:last-child::after,
+#detached-06 .ebquery:last-child::after,
+#detached-07 .ebquery:last-child::after,
+#detached-08 .ebquery:last-child::after,
+#detached-09 .ebquery:last-child::after,
+#detached-10 .ebquery:last-child::after {
+  display: block;
+  padding-bottom: 0.2rem;
+  text-align: right;
+  font-size: 0.8rem;
+}
+#detached-03 .ebquery:last-child::after {
+  content: "【ランダムハウス英語辞典】";
+}
+#detached-04 .ebquery:last-child::after {
+  content: "【研究社 新英和大辞典】";
+}
+#detached-05 .ebquery:last-child::after {
+  content: "【リーダーズ・プラス】";
+}
+#detached-06 .ebquery:last-child::after {
+  content: "【英辞郎】";
+}
+#detached-07 .ebquery:last-child::after {
+  content: "【ロングマン現代英英辞典】";
+}
+#detached-08 .ebquery:last-child::after {
+  content: "【オックスフォード現代英英辞典】";
+}
+#detached-09 .ebquery:last-child::after {
+  content: "【斎藤和英大辞典】";
+}
+#detached-10 .ebquery:last-child::after {
+  content: "【ロングマン現代英英辞典】";
+}
+#detached-03 .ebquery:last-child,
+#detached-04 .ebquery:last-child,
+#detached-05 .ebquery:last-child,
+#detached-06 .ebquery:last-child,
+#detached-07 .ebquery:last-child,
+#detached-08 .ebquery:last-child,
+#detached-09 .ebquery:last-child,
+#detached-10 .ebquery:last-child {
   box-shadow: 0 -5rem 1rem -5rem #e6e6e6 inset;
 }
-
 .ebquery:first-child {
   padding-top: 0.5rem;
 }
@@ -168,9 +199,12 @@ body {
   padding-bottom: 0.5rem;
 }
 .ebquery {
-  padding: 0 1rem 0 1rem;
+  position: relative;
+  margin: 0 0.5rem 0 0;
+  padding: 0 0.5rem 0 1rem;
   display: block;
   word-wrap: break-word;
+  z-index: 2;
 }
 .ebkw {
   font-weight: bold;
