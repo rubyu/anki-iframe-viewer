@@ -1,13 +1,23 @@
 
 html {
-  font-size: 14px;
+  font-size: 13.5px;
 }
 
 #detached {
   -webkit-column-width: 50vw;
 }
 
+#detached-00,
+#detached-01 {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.2rem;
+}
 #detached-01 table {
   float: none;
   margin: 0 auto 0 auto;
+}
+#detached-03 .ebquery:first-child::before {
+  content: "";
+  white-space: pre;
 }

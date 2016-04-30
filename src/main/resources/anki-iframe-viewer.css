@@ -77,8 +77,9 @@ body {
 #detached-00 {
   display: inline;
   float: left;
-  margin: 0 auto 0 1rem;
+  margin: 0 auto 0 0.5rem;
   font-size: 1.2rem;
+  line-height: 1;
 }
 #detached-01 {
   display: inline;
@@ -180,13 +181,16 @@ body {
 .ebquery:first-child {
   padding-top: 0.5rem;
 }
+.ebquery:not(:last-child) {
+  padding-bottom: 0.2rem;
+}
 .ebquery:not(:first-child) {
   margin-top: 0.1rem;
   padding-top: 0.3rem;
 }
 .ebquery {
   margin: 0 0.5rem 0 0;
-  padding: 0 0.5rem 0 1rem;
+  padding: 0 0.5rem 0 0.5rem;
   display: block;
   word-wrap: break-word;
   background-color: white;
