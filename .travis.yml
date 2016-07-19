@@ -4,14 +4,12 @@ scala:
     - 2.11.8
 
 script:
+    - sbt test
     - sbt prod/dist
 
 after_success:
     - mv dist anki-iframe-viewer
     - zip -r anki-iframe-viewer.zip anki-iframe-viewer
-
-addons:
-    artifacts: true
 
 branches:
     except:
